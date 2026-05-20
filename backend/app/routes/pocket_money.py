@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from typing import List
 from app.core.database import get_db
 from app.models.models import PocketMoneyAccount, Transaction, Participant
 from app.schemas.schemas import (
@@ -7,6 +9,15 @@ from app.schemas.schemas import (
     TransactionCreate,
     Transaction as TransactionSchema
 )
+
+class OfflineTransaction(BaseModel):
+    participant_id: int
+    pocket_money_account_id: int
+    type: str
+    amount: float
+    description: str
+    product_id: int = None
+    timestamp: str
 
 router = APIRouter()
 
@@ -151,3 +162,44 @@ def get_pocket_money_stats(camp_id: int, db: Session = Depends(get_db)):
         "total_spent": total_spent,
         "average_balance": total_current / len(accounts) if accounts else 0
     }
+
+@router.post("/transactions/sync")
+def sync_offline_transactions(
+    sync_data: dict,
+    db: Session = Depends(get_db)
+):
+    """Sync offline transactions from PWA."""
+    transactions = sync_data.get('transactions', [])
+    synced_count = 0
+
+    for tx in transactions:
+        try:
+            account = db.query(PocketMoneyAccount).filter(
+                PocketMoneyAccount.participant_id == tx['participant_id']
+            ).first()
+
+            if not account:
+                continue
+
+            if account.current_balance < tx['amount']:
+                continue
+
+            db_transaction = Transaction(
+                participant_id=tx['participant_id'],
+                account_id=account.id,
+                product_name=tx.get('description', 'Offline Transaction'),
+                amount=tx['amount'],
+                description=tx.get('description', ''),
+                ma_user_id=1
+            )
+            db.add(db_transaction)
+            account.current_balance -= tx['amount']
+            db.add(account)
+            synced_count += 1
+
+        except Exception as e:
+            print(f"Error syncing transaction: {e}")
+            continue
+
+    db.commit()
+    return {"synced": synced_count, "total": len(transactions)}
