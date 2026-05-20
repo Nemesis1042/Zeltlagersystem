@@ -50,7 +50,7 @@ function App() {
           }
         />
 
-        <Route path="/" element={<Navigate to="/anmeldung" replace />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/admin" replace /> : <Navigate to="/anmeldung" replace />} />
       </Routes>
     </Router>
   )
