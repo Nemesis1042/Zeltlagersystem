@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import axios from 'axios'
+import SignatureCanvas from '../components/SignatureCanvas'
 
 export default function RegistrationForm() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [registrationId, setRegistrationId] = useState(null)
   const [formData, setFormData] = useState({
     // Teilnehmer
     tn_familienname: '',
@@ -61,6 +63,10 @@ export default function RegistrationForm() {
     rki_gelesen: false,
     gesundheit_bestaetigung: false,
     medikamente_gabe_erlaubnis: false,
+
+    // Unterschriften
+    sig_sorge: null,
+    sig_tn: null,
   })
 
   const handleChange = (e) => {
@@ -79,14 +85,61 @@ export default function RegistrationForm() {
     try {
       const response = await axios.post('/api/registrations/', formData)
       setSuccess(true)
-      setTimeout(() => {
-        window.location.href = '/login'
-      }, 2000)
+      setRegistrationId(response.data.registration_id)
     } catch (err) {
       setError(err.response?.data?.detail || 'Anmeldung fehlgeschlagen')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (success && registrationId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center py-12 px-4">
+        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="text-6xl mb-4">✓</div>
+          <h1 className="text-3xl font-bold mb-2 text-green-700">Anmeldung erfolgreich!</h1>
+          <p className="text-gray-600 mb-6">
+            Deine Anmeldung zu BULA2026 wurde erfolgreich empfangen.
+          </p>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h3 className="font-semibold mb-4">📧 Nächste Schritte:</h3>
+            <ul className="text-left text-gray-700 space-y-2">
+              <li>✓ Überprüfe dein Email-Postfach (auch Spam-Ordner)</li>
+              <li>✓ Du erhältst eine Bestätigungsemail mit deinen Login-Daten</li>
+              <li>✓ Logge dich mit deiner Email-Adresse ein</li>
+              <li>✓ Du kannst dann die Packliste abhaken und weitere Infos abrufen</li>
+            </ul>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                const link = document.createElement('a')
+                link.href = `/api/registrations/${registrationId}/pdf`
+                link.download = `BULA2026_Anmeldung_${registrationId}.pdf`
+                link.click()
+              }}
+              className="w-full px-6 py-3 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700"
+            >
+              📄 Anmeldung als PDF herunterladen
+            </button>
+
+            <button
+              onClick={() => window.location.href = '/login'}
+              className="w-full px-6 py-3 bg-gray-600 text-white rounded font-semibold hover:bg-gray-700"
+            >
+              🔑 Zum Login
+            </button>
+          </div>
+
+          <p className="text-sm text-gray-500 mt-6">
+            Anmeldungs-ID: {registrationId}
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -98,12 +151,6 @@ export default function RegistrationForm() {
         {error && (
           <div className="bg-red-100 text-red-700 p-4 rounded mb-6">
             {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="bg-green-100 text-green-700 p-4 rounded mb-6">
-            ✓ Anmeldung erfolgreich! Leitung zu Login...
           </div>
         )}
 
@@ -532,10 +579,13 @@ export default function RegistrationForm() {
             </div>
           )}
 
-          {/* Step 5: Einwilligungen */}
+          {/* Step 5: Einwilligungen + Unterschriften */}
           {step === 5 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold mb-4">Einwilligungen</h2>
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold mb-4">Einwilligungen & Unterschriften</h2>
+
+              <div>
+                <h3 className="font-semibold mb-3">Einwilligungen</h3>
 
               <label className="flex items-start mb-3">
                 <input
@@ -573,21 +623,38 @@ export default function RegistrationForm() {
                 <span>Mein Kind ist gesund und kann am Zeltlager teilnehmen. Ich informiere bei Änderungen.</span>
               </label>
 
-              <label className="flex items-start mb-3">
-                <input
-                  type="checkbox"
-                  name="medikamente_gabe_erlaubnis"
-                  checked={formData.medikamente_gabe_erlaubnis}
-                  onChange={handleChange}
-                  className="mr-2 mt-1"
-                  required
-                />
-                <span>Betreuer dürfen die angegebenen Medikamente verabreichen.</span>
-              </label>
+                <label className="flex items-start mb-3">
+                  <input
+                    type="checkbox"
+                    name="medikamente_gabe_erlaubnis"
+                    checked={formData.medikamente_gabe_erlaubnis}
+                    onChange={handleChange}
+                    className="mr-2 mt-1"
+                    required
+                  />
+                  <span>Betreuer dürfen die angegebenen Medikamente verabreichen.</span>
+                </label>
+              </div>
 
-              <p className="text-sm text-gray-600 border-t pt-4">
-                Mit dem Absenden akzeptiere ich die Datenschutzerklärung und Allgemeinen Bedingungen.
-              </p>
+              <div className="border-t pt-6">
+                <h3 className="font-semibold mb-4">Unterschriften</h3>
+
+                <SignatureCanvas
+                  label="Unterschrift Sorgeberechtigte(r) *"
+                  onSave={(sig) => setFormData(prev => ({ ...prev, sig_sorge: sig }))}
+                />
+
+                <div className="mt-6">
+                  <SignatureCanvas
+                    label="Unterschrift Teilnehmer/in (optional)"
+                    onSave={(sig) => setFormData(prev => ({ ...prev, sig_tn: sig }))}
+                  />
+                </div>
+
+                <p className="text-xs text-gray-500 mt-4 border-t pt-4">
+                  Mit dem Absenden akzeptiere ich die Datenschutzerklärung und Allgemeinen Bedingungen.
+                </p>
+              </div>
             </div>
           )}
 
