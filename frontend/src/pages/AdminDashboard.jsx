@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import ParticipantsPage from './ParticipantsPage'
+import CheckInPage from './CheckInPage'
+import TentsPage from './TentsPage'
 
 export default function AdminDashboard({ onLogout }) {
   const navigate = useNavigate()
@@ -143,79 +146,17 @@ export default function AdminDashboard({ onLogout }) {
 
         {/* Participants */}
         {activeTab === 'participants' && (
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">Teilnehmer ({participants.length})</h2>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-100 border-b">
-                    <tr>
-                      <th className="px-4 py-2">ID</th>
-                      <th className="px-4 py-2">Name</th>
-                      <th className="px-4 py-2">Zelt</th>
-                      <th className="px-4 py-2">Status</th>
-                      <th className="px-4 py-2">Check-In</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {participants.map(p => (
-                      <tr key={p.id} className="border-b hover:bg-gray-50">
-                        <td className="px-4 py-2">{p.id}</td>
-                        <td className="px-4 py-2">TN {p.id}</td>
-                        <td className="px-4 py-2">{p.zelt_id ? `Zelt ${p.zelt_id}` : 'Nicht zugewiesen'}</td>
-                        <td className="px-4 py-2">
-                          <span className={`px-2 py-1 rounded text-xs ${p.status === 'angekommen' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                            {p.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2">{p.check_in_time ? '✓' : '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          <ParticipantsPage />
         )}
 
         {/* Check-In */}
         {activeTab === 'check-in' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">Check-In Management</h2>
-            {checkInStatus && (
-              <div className="space-y-4">
-                <div className="bg-green-50 border border-green-200 p-4 rounded">
-                  <p className="text-lg font-semibold text-green-800">
-                    ✓ {checkInStatus.checked_in} von {checkInStatus.total} Teilnehmern angekommen ({checkInStatus.percentage}%)
-                  </p>
-                </div>
-
-                {checkInStatus.pending_participants.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold mb-2">Noch nicht eingetroffen:</h3>
-                    <div className="space-y-2">
-                      {checkInStatus.pending_participants.map(p => (
-                        <div key={p.id} className="flex justify-between items-center p-3 bg-gray-50 rounded border">
-                          <span>{p.name} ({p.zelt})</span>
-                          <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                            ✓ Check-In
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <CheckInPage />
         )}
 
         {/* Tents */}
         {activeTab === 'tents' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">🏕️ Zeltplatz-Management</h2>
-            <p className="text-gray-600">Zeltplatz-Zuordnung kommt bald...</p>
-          </div>
+          <TentsPage />
         )}
 
         {/* Activities */}
