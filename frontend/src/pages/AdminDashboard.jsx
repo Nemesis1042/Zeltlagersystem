@@ -4,6 +4,8 @@ import axios from 'axios'
 import ParticipantsPage from './ParticipantsPage'
 import CheckInPage from './CheckInPage'
 import TentsPage from './TentsPage'
+import ActivitiesPage from './ActivitiesPage'
+import GalleryPage from './GalleryPage'
 
 export default function AdminDashboard({ onLogout }) {
   const navigate = useNavigate()
@@ -112,6 +114,12 @@ export default function AdminDashboard({ onLogout }) {
           >
             💰 Taschengeld
           </button>
+          <button
+            onClick={() => setActiveTab('gallery')}
+            className={`py-2 px-4 ${activeTab === 'gallery' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600'}`}
+          >
+            📷 Galerie
+          </button>
         </div>
       </nav>
 
@@ -161,18 +169,20 @@ export default function AdminDashboard({ onLogout }) {
 
         {/* Activities */}
         {activeTab === 'activities' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">🎯 Aktivitäten & Gruppen-Generator</h2>
-            <p className="text-gray-600">Aktivitäten-Verwaltung kommt bald...</p>
-          </div>
+          <ActivitiesPage />
         )}
 
         {/* Pocket Money */}
         {activeTab === 'pocket-money' && (
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold mb-4">💰 Taschengeld-System</h2>
-            <p className="text-gray-600">Taschengeld & QR-Scanner kommt bald...</p>
+            <p className="text-gray-600">Taschengeld & QR-Scanner verfügbar unter /scanner</p>
           </div>
+        )}
+
+        {/* Gallery */}
+        {activeTab === 'gallery' && (
+          <GalleryPage />
         )}
       </main>
     </div>

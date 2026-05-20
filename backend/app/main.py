@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from app.core.config import settings
 from app.core.database import engine, Base
-from app.routes import auth, registrations, participants, tents, check_in, pocket_money, activities
+from app.routes import auth, registrations, participants, tents, check_in, pocket_money, activities, photos
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -30,6 +32,12 @@ app.include_router(tents.router, prefix="/api/tents", tags=["tents"])
 app.include_router(check_in.router, prefix="/api/check-in", tags=["check-in"])
 app.include_router(pocket_money.router, prefix="/api/pocket-money", tags=["pocket-money"])
 app.include_router(activities.router, prefix="/api/activities", tags=["activities"])
+app.include_router(photos.router, prefix="/api/photos", tags=["photos"])
+
+# Serve static files (uploads)
+upload_dir = Path("uploads")
+upload_dir.mkdir(exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.get("/")
 async def root():

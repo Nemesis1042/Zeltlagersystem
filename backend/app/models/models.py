@@ -249,3 +249,18 @@ class ActivityPairingHistory(Base):
     participant_b_id = Column(Integer, ForeignKey("participants.id"))
     activity_id = Column(Integer, ForeignKey("activities.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Photo(Base):
+    """Lager-Galerie Fotos"""
+    __tablename__ = "photos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    camp_id = Column(Integer, ForeignKey("camps.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    filename = Column(String)
+    description = Column(String, nullable=True)
+    released = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    camp = relationship("Camp")
+    user = relationship("User")
