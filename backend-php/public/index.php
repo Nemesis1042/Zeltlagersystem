@@ -4,57 +4,78 @@
  * All requests go through here
  */
 
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 // Configuration
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../src/Router.php';
 
+// Load all repositories
+require_once __DIR__ . '/../src/repositories/UserRepository.php';
+require_once __DIR__ . '/../src/repositories/ParticipantRepository.php';
+require_once __DIR__ . '/../src/repositories/TentRepository.php';
+require_once __DIR__ . '/../src/repositories/ActivityRepository.php';
+require_once __DIR__ . '/../src/repositories/RegistrationRepository.php';
+require_once __DIR__ . '/../src/repositories/PhotoRepository.php';
+
+// Load services
+require_once __DIR__ . '/../src/services/AuthService.php';
+
 // Initialize Router
 $router = new Router();
 
-// Auth Routes
-$router->post('/api/auth/login', function($params) {
-    require __DIR__ . '/../src/api/auth.php';
-    $auth = new AuthAPI();
-    $auth->login();
-});
-
-$router->post('/api/auth/register', function($params) {
-    require __DIR__ . '/../src/api/auth.php';
-    $auth = new AuthAPI();
-    $auth->register();
-});
-
-$router->get('/api/auth/me', function($params) {
-    require __DIR__ . '/../src/api/auth.php';
-    $auth = new AuthAPI();
-    $auth->me();
-});
+// Auth Middleware - Check JWT for protected routes
+$checkAuth = function() {
+    global $currentUser;
+    $auth = new AuthService();
+    $currentUser = $auth->getCurrentUser();
+    if (!$currentUser) {
+        http_response_code(401);
+        die(json_encode(['error' => 'Unauthorized']));
+    }
+    return $currentUser;
+};
 
 // Health Check
-$router->get('/api/health', function($params) {
+$router->get('/api/health', function() {
     http_response_code(200);
-    echo json_encode(array(
+    echo json_encode([
         'status' => 'ok',
-        'version' => APP_VERSION,
+        'version' => '1.0.0',
         'timestamp' => date('c')
-    ));
+    ]);
 });
 
 // Root Info
-$router->get('/', function($params) {
+$router->get('/', function() {
     http_response_code(200);
-    echo json_encode(array(
+    echo json_encode([
         'message' => 'BULA2026 Zeltlager-Verwaltungssystem API',
-        'version' => APP_VERSION,
-        'docs' => '/api/docs',
-        'endpoints' => array(
-            'POST /api/auth/login',
-            'POST /api/auth/register',
-            'GET /api/auth/me'
-        )
-    ));
+        'version' => '1.0.0',
+        'status' => 'ready'
+    ]);
 });
+
+// Authentication Routes
+require __DIR__ . '/../src/api/auth.php';
+
+// Participants Routes
+require __DIR__ . '/../src/api/participants.php';
+
+// Check-In Routes
+require __DIR__ . '/../src/api/check-in.php';
+
+// Tents Routes
+require __DIR__ . '/../src/api/tents.php';
+
+// Activities Routes
+require __DIR__ . '/../src/api/activities.php';
+
+// Photos Routes
+require __DIR__ . '/../src/api/photos.php';
 
 // Dispatch Request
 $router->dispatch();
