@@ -99,8 +99,14 @@ export default function RegistrationForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
+
+    if (!formData.sig_sorge) {
+      setError('Unterschrift des Sorgeberechtigten ist erforderlich!')
+      return
+    }
+
+    setLoading(true)
 
     try {
       const response = await api.post('/registrations/', formData)
