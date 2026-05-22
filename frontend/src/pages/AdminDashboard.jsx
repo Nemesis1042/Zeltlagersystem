@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../utils/api'
 import ParticipantsPage from './ParticipantsPage'
 import CheckInPage from './CheckInPage'
 import TentsPage from './TentsPage'
@@ -23,10 +23,7 @@ export default function AdminDashboard({ onLogout }) {
 
   const loadUser = async () => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await axios.get('/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      const response = await api.get('/auth/me')
       setUser(response.data)
     } catch (err) {
       navigate('/login')
