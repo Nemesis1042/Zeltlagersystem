@@ -1,43 +1,69 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16-alpine
+  # MySQL Database
+  mysql:
+    image: mysql:8.0-alpine
     container_name: bula2026_db
     environment:
-      POSTGRES_USER: bula_user
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: bula2026
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_DATABASE: bula2026
+      MYSQL_USER: bula_user
+      MYSQL_PASSWORD: bula_password
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
+      - ./backend-php/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bula_user"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - bula2026_network
 
+  # PHP Backend
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: php:8.1-apache
     container_name: bula2026_backend
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
-      - "8000:8000"
-    environment:
-      DATABASE_URL: postgresql://bula_user:secret@postgres:5432/bula2026
-      JWT_SECRET: your-secret-key-change-in-production
+      - "8000:80"
     volumes:
-      - ./backend:/app
+      - ./backend-php:/var/www/html
+      - ./backend-php/public/.htaccess:/var/www/html/.htaccess
+    environment:
+      DB_HOST: mysql
+      DB_NAME: bula2026
+      DB_USER: bula_user
+      DB_PASS: bula_password
+      JWT_SECRET: your-secret-key-change-in-production
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
-    stdin_open: true
-    tty: true
+    networks:
+      - bula2026_network
+    command: sh -c "a2enmod rewrite && apache2-foreground"
 
-  # Frontend will be run separately with: npm install && npm run dev
+  # Frontend (optional - usually run separately with npm run dev)
+  # To use: uncomment below and run: docker-compose up
+  # frontend:
+  #   image: node:18-alpine
+  #   container_name: bula2026_frontend
+  #   ports:
+  #     - "5173:5173"
+  #   volumes:
+  #     - ./frontend:/app
+  #   working_dir: /app
+  #   command: sh -c "npm install && npm run dev"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - bula2026_network
 
 volumes:
-  postgres_data:
+  mysql_data:
+
+networks:
+  bula2026_network:
+    driver: bridge

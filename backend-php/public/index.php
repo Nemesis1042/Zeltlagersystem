@@ -13,8 +13,7 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../src/Router.php';
 
-// Load all repositories
-require_once __DIR__ . '/../src/repositories/UserRepository.php';
+// Load repositories (UserRepository loaded by AuthService)
 require_once __DIR__ . '/../src/repositories/ParticipantRepository.php';
 require_once __DIR__ . '/../src/repositories/TentRepository.php';
 require_once __DIR__ . '/../src/repositories/ActivityRepository.php';
@@ -27,18 +26,6 @@ require_once __DIR__ . '/../src/services/AuthService.php';
 
 // Initialize Router
 $router = new Router();
-
-// Auth Middleware - Check JWT for protected routes
-$checkAuth = function() {
-    global $currentUser;
-    $auth = new AuthService();
-    $currentUser = $auth->getCurrentUser();
-    if (!$currentUser) {
-        http_response_code(401);
-        die(json_encode(['error' => 'Unauthorized']));
-    }
-    return $currentUser;
-};
 
 // Health Check
 $router->get('/api/health', function() {
