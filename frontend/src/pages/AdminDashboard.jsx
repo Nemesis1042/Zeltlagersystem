@@ -32,7 +32,7 @@ export default function AdminDashboard({ onLogout }) {
 
   const loadParticipants = async () => {
     try {
-      const response = await axios.get('/api/participants/?camp_id=1')
+      const response = await api.get('/participants/?camp_id=1')
       setParticipants(response.data)
     } catch (err) {
       console.error('Error loading participants:', err)
@@ -41,7 +41,7 @@ export default function AdminDashboard({ onLogout }) {
 
   const loadCheckInStatus = async () => {
     try {
-      const response = await axios.get('/api/check-in/status/1')
+      const response = await api.get('/check-in/status/1')
       setCheckInStatus(response.data)
     } catch (err) {
       console.error('Error loading check-in status:', err)
