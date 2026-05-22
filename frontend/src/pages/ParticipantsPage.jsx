@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../utils/api'
 
 export default function ParticipantsPage() {
   const [participants, setParticipants] = useState([])
@@ -21,14 +21,14 @@ export default function ParticipantsPage() {
   const loadParticipants = async () => {
     setLoading(true)
     try {
-      const response = await axios.get(`/api/participants/?camp_id=${CAMP_ID}`)
+      const response = await api.get(`/participants/?camp_id=${CAMP_ID}`)
       setParticipants(response.data)
 
       // Load registration details for each participant
       const regData = {}
       for (const p of response.data) {
         try {
-          const reg = await axios.get(`/api/registrations/${p.registration_id}`)
+          const reg = await api.get(`/registrations/${p.registration_id}`)
           regData[p.id] = reg.data
         } catch (e) {
           console.error(`Error loading registration for participant ${p.id}`)
@@ -44,7 +44,7 @@ export default function ParticipantsPage() {
 
   const loadTents = async () => {
     try {
-      const response = await axios.get(`/api/tents/?camp_id=${CAMP_ID}`)
+      const response = await api.get(`/tents/?camp_id=${CAMP_ID}`)
       setTents(response.data)
     } catch (err) {
       console.error('Error loading tents:', err)
@@ -71,7 +71,7 @@ export default function ParticipantsPage() {
 
   const handleAssignZelt = async (participantId, tentId) => {
     try {
-      await axios.post(`/api/tents/${tentId}/assign-participant/${participantId}`)
+      await api.post(`/tents/${tentId}/assign-participant/${participantId}`)
       await loadParticipants()
       alert('✓ Zelt zugewiesen')
     } catch (err) {

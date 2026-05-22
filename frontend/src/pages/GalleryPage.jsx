@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../utils/api'
 
 export default function GalleryPage() {
   const [photos, setPhotos] = useState([])
@@ -12,7 +12,6 @@ export default function GalleryPage() {
   const [selectedPhoto, setSelectedPhoto] = useState(null)
 
   const CAMP_ID = 1
-  const token = localStorage.getItem('token')
 
   useEffect(() => {
     loadPhotos()
@@ -20,14 +19,12 @@ export default function GalleryPage() {
 
   const loadPhotos = async () => {
     try {
-      let url = `/api/photos/?camp_id=${CAMP_ID}`
+      let url = `/photos/?camp_id=${CAMP_ID}`
       if (filterReleased !== 'all') {
         url += `&released=${filterReleased === 'released'}`
       }
 
-      const response = await axios.get(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      const response = await api.get(url)
       setPhotos(response.data)
     } catch (err) {
       console.error('Error loading photos:', err)
@@ -48,9 +45,8 @@ export default function GalleryPage() {
         formData.append('camp_id', CAMP_ID)
         formData.append('description', 'Lager-Foto')
 
-        await axios.post('/api/photos/', formData, {
+        await api.post('/photos/', formData, {
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
           },
           onUploadProgress: (progressEvent) => {
@@ -74,10 +70,9 @@ export default function GalleryPage() {
 
   const handleReleasePhoto = async (photoId, released) => {
     try {
-      await axios.patch(
-        `/api/photos/${photoId}`,
-        { released },
-        { headers: { 'Authorization': `Bearer ${token}` } }
+      await api.patch(
+        `/photos/${photoId}`,
+        { released }
       )
 
       setMessage(released ? '✓ Foto freigegeben' : '✓ Freigabe entzogen')
@@ -93,9 +88,7 @@ export default function GalleryPage() {
     if (!confirm('Foto wirklich löschen?')) return
 
     try {
-      await axios.delete(`/api/photos/${photoId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      await api.delete(`/photos/${photoId}`)
 
       setMessage('✓ Foto gelöscht')
       setTimeout(() => setMessage(''), 2000)

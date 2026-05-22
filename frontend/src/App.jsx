@@ -28,7 +28,10 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/anmeldung" element={<RegistrationForm />} />
+        <Route
+          path="/anmeldung"
+          element={isAuthenticated ? <Navigate to="/admin" replace /> : <RegistrationForm />}
+        />
         <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
         <Route path="/register" element={<RegisterPage onRegister={handleLogin} />} />
 
@@ -50,7 +53,7 @@ function App() {
           }
         />
 
-        <Route path="/" element={<Navigate to="/anmeldung" replace />} />
+        <Route path="/" element={isAuthenticated ? <Navigate to="/admin" replace /> : <Navigate to="/anmeldung" replace />} />
       </Routes>
     </Router>
   )

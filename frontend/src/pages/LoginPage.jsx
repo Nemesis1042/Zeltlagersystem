@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import axios from 'axios'
+import api from '../utils/api'
 
 export default function LoginPage({ onLogin }) {
   const navigate = useNavigate()
@@ -15,12 +15,13 @@ export default function LoginPage({ onLogin }) {
     setLoading(true)
 
     try {
-      const response = await axios.post('/api/auth/login', { email, password })
-      localStorage.setItem('token', response.data.access_token)
-      onLogin(response.data.access_token)
+      const response = await api.post('/auth/login', { email, password })
+      const token = response.data.token
+      localStorage.setItem('token', token)
+      onLogin(token)
       navigate('/admin')
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed')
+      setError(err.response?.data?.error || 'Login fehlgeschlagen')
     } finally {
       setLoading(false)
     }

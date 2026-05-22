@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import axios from 'axios'
+import api from '../utils/api'
 
 export default function RegisterPage({ onRegister }) {
   const navigate = useNavigate()
@@ -25,12 +25,13 @@ export default function RegisterPage({ onRegister }) {
     setLoading(true)
 
     try {
-      const response = await axios.post('/api/auth/register', formData)
-      localStorage.setItem('token', response.data.access_token)
-      onRegister(response.data.access_token)
+      const response = await api.post('/auth/register', formData)
+      const token = response.data.token
+      localStorage.setItem('token', token)
+      onRegister(token)
       navigate('/admin')
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed')
+      setError(err.response?.data?.error || 'Registrierung fehlgeschlagen')
     } finally {
       setLoading(false)
     }
