@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../utils/api'
 
 export default function TentsPage() {
   const [tents, setTents] = useState([])
@@ -18,7 +18,7 @@ export default function TentsPage() {
 
   const loadTents = async () => {
     try {
-      const response = await axios.get(`/api/tents/?camp_id=${CAMP_ID}`)
+      const response = await api.get(`/tents/?camp_id=${CAMP_ID}`)
       setTents(response.data)
     } catch (err) {
       console.error('Error loading tents:', err)
@@ -27,7 +27,7 @@ export default function TentsPage() {
 
   const loadParticipants = async () => {
     try {
-      const response = await axios.get(`/api/participants/?camp_id=${CAMP_ID}`)
+      const response = await api.get(`/participants/?camp_id=${CAMP_ID}`)
       const byTent = {}
       response.data.forEach(p => {
         if (p.zelt_id) {
@@ -46,11 +46,9 @@ export default function TentsPage() {
     if (!newTentName.trim()) return
 
     try {
-      await axios.post(`/api/tents/`, {
+      await api.post(`/tents/?camp_id=${CAMP_ID}`, {
         name: newTentName,
         capacity: 8
-      }, {
-        params: { camp_id: CAMP_ID }
       })
 
       setNewTentName('')

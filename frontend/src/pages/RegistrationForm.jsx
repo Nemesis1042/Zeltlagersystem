@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import api from '../utils/api'
 import SignatureCanvas from '../components/SignatureCanvas'
 
 export default function RegistrationForm() {
@@ -83,7 +83,7 @@ export default function RegistrationForm() {
     setError('')
 
     try {
-      const response = await axios.post('/api/registrations/', formData)
+      const response = await api.post('/registrations/', formData)
       setSuccess(true)
       setRegistrationId(response.data.registration_id)
     } catch (err) {

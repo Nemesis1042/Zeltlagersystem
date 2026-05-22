@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../utils/api'
 import jsQR from 'jsqr'
 import { offlineStorage, isOnline, syncTransactions, onOnlineStatusChange } from '../utils/offlineStorage'
 
@@ -71,10 +71,7 @@ export default function ScannerPage() {
     setLoading(true)
     setError('')
     try {
-      const token = localStorage.getItem('token')
-      const response = await axios.get(`/api/participants/${qrData}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      const response = await api.get(`/participants/${qrData}`)
       setParticipant(response.data)
       await loadAccount(response.data.id)
     } catch (err) {
@@ -88,10 +85,8 @@ export default function ScannerPage() {
 
   const loadAccount = async (participantId) => {
     try {
-      const token = localStorage.getItem('token')
-      const response = await axios.get(
-        `/api/pocket-money/accounts/${participantId}`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+      const response = await api.get(
+        `/pocket-money/accounts/${participantId}`
       )
       setAccount(response.data)
     } catch (err) {
@@ -121,14 +116,11 @@ export default function ScannerPage() {
 
     try {
       if (online) {
-        const token = localStorage.getItem('token')
-        await axios.post('/api/pocket-money/transactions', {
+        await api.post('/pocket-money/transactions', {
           participant_id: participant.id,
           product_name: transactionDesc || 'QR-Scanner Transaktion',
           amount: amount,
           description: transactionDesc || 'QR-Scanner Transaktion'
-        }, {
-          headers: { 'Authorization': `Bearer ${token}` }
         })
         setMessage('✓ Transaktion durchgeführt')
       } else {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../utils/api'
 
 export default function ActivitiesPage() {
   const [activities, setActivities] = useState([])
@@ -19,7 +19,6 @@ export default function ActivitiesPage() {
   const [attendance, setAttendance] = useState({})
 
   const CAMP_ID = 1
-  const token = localStorage.getItem('token')
 
   useEffect(() => {
     loadActivities()
@@ -33,9 +32,7 @@ export default function ActivitiesPage() {
 
   const loadActivities = async () => {
     try {
-      const response = await axios.get(`/api/activities/?camp_id=${CAMP_ID}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      const response = await api.get(`/activities/?camp_id=${CAMP_ID}`)
       setActivities(response.data)
     } catch (err) {
       console.error('Error loading activities:', err)
@@ -45,9 +42,7 @@ export default function ActivitiesPage() {
 
   const loadGroups = async (activityId) => {
     try {
-      const response = await axios.get(`/api/activities/${activityId}/groups`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      const response = await api.get(`/activities/${activityId}/groups`)
       setGroups(response.data)
       initializeAttendance(response.data)
     } catch (err) {
@@ -71,10 +66,7 @@ export default function ActivitiesPage() {
     if (!newActivity.name.trim()) return
 
     try {
-      await axios.post(`/api/activities/`, newActivity, {
-        params: { camp_id: CAMP_ID },
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
+      await api.post(`/activities/?camp_id=${CAMP_ID}`, newActivity)
 
       setMessage('✓ Aktivität erstellt')
       setNewActivity({
@@ -99,10 +91,9 @@ export default function ActivitiesPage() {
     setError('')
 
     try {
-      const response = await axios.post(
-        `/api/activities/${selectedActivity.id}/generate-groups`,
-        {},
-        { headers: { 'Authorization': `Bearer ${token}` } }
+      const response = await api.post(
+        `/activities/${selectedActivity.id}/generate-groups`,
+        {}
       )
 
       setMessage(`✓ ${response.data.num_groups} Gruppen generiert`)
@@ -126,10 +117,9 @@ export default function ActivitiesPage() {
         attendanceData[participantId] = attended
       })
 
-      await axios.post(
-        `/api/activities/${selectedActivity.id}/groups/1/attendance`,
-        attendanceData,
-        { headers: { 'Authorization': `Bearer ${token}` } }
+      await api.post(
+        `/activities/${selectedActivity.id}/groups/1/attendance`,
+        attendanceData
       )
 
       setMessage('✓ Anwesenheit gespeichert')

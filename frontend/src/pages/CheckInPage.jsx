@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../utils/api'
 
 export default function CheckInPage() {
   const [status, setStatus] = useState(null)
@@ -28,7 +28,7 @@ export default function CheckInPage() {
 
   const loadStatus = async () => {
     try {
-      const response = await axios.get(`/api/check-in/status/${CAMP_ID}`)
+      const response = await api.get(`/check-in/status/${CAMP_ID}`)
       setStatus(response.data)
     } catch (err) {
       console.error('Error loading check-in status:', err)
@@ -37,7 +37,7 @@ export default function CheckInPage() {
 
   const loadParticipants = async () => {
     try {
-      const response = await axios.get(`/api/check-in/list/${CAMP_ID}`)
+      const response = await api.get(`/check-in/list/${CAMP_ID}`)
       setParticipants(response.data)
     } catch (err) {
       console.error('Error loading participants:', err)
@@ -47,13 +47,9 @@ export default function CheckInPage() {
   const handleCheckIn = async (participantId) => {
     setLoading(true)
     try {
-      await axios.post(`/api/check-in/`, {
+      await api.post(`/check-in/`, {
         participant_id: participantId,
         brought_by: null
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
       })
 
       setMessage('✓ Check-In erfolgreich!')
