@@ -147,7 +147,12 @@ export default function RegistrationForm() {
             </button>
 
             <button
-              onClick={() => window.location.href = '/login'}
+              onClick={() => {
+                const mainDomain = window.location.hostname === 'anmeldung.lagerbank.info'
+                  ? 'https://lagerbank.info/login'
+                  : '/login'
+                window.location.href = mainDomain
+              }}
               className="w-full px-6 py-3 bg-gray-600 text-white rounded font-semibold hover:bg-gray-700"
             >
               🔑 Zum Login
