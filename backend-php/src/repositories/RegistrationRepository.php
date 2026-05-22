@@ -98,4 +98,12 @@ class RegistrationRepository {
         $stmt = $this->db->prepare("DELETE FROM registrations WHERE id = ?");
         return $this->db->execute($stmt, [$id]);
     }
+
+    public function getOrtByPlz($plz) {
+        $stmt = $this->db->prepare("
+            SELECT DISTINCT tn_ort FROM registrations WHERE tn_plz = ? LIMIT 1
+        ");
+        $result = $this->db->execute($stmt, [$plz]);
+        return $result[0]['tn_ort'] ?? null;
+    }
 }

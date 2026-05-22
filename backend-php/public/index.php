@@ -53,6 +53,9 @@ require __DIR__ . '/../src/api/auth.php';
 // Participants Routes
 require __DIR__ . '/../src/api/participants.php';
 
+// Registrations Routes
+require __DIR__ . '/../src/api/registrations.php';
+
 // Check-In Routes
 require __DIR__ . '/../src/api/check-in.php';
 
