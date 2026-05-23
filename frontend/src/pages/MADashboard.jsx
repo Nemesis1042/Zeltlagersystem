@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
-import TentAssignment from '../components/TentAssignment'
 import PhotoUpload from '../components/PhotoUpload'
 import ActivityGenerator from '../components/ActivityGenerator'
 import PocketMoneyManagement from '../components/PocketMoneyManagement'
-import PermissionsManagement from '../components/PermissionsManagement'
-import NotificationsPanel from '../components/NotificationsPanel'
 
-export default function AdminDashboard({ onLogout }) {
+export default function MADashboard({ onLogout }) {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
   const [user, setUser] = useState(null)
@@ -16,7 +13,6 @@ export default function AdminDashboard({ onLogout }) {
   const [checkInStatus, setCheckInStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [showNotifications, setShowNotifications] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -72,8 +68,8 @@ export default function AdminDashboard({ onLogout }) {
           <div className="flex items-center gap-3">
             <div className="text-3xl">⛺</div>
             <div>
-              <h1 className="text-2xl font-bold text-navy">BULA2026 Admin Panel</h1>
-              <p className="text-sm text-slate-500">Vollständige Lagerverwaltung</p>
+              <h1 className="text-2xl font-bold text-navy">BULA2026 Mitarbeiter Dashboard</h1>
+              <p className="text-sm text-slate-500">Lagerverwaltung & Koordination</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -100,11 +96,9 @@ export default function AdminDashboard({ onLogout }) {
             { id: 'overview', label: '📊 Übersicht' },
             { id: 'participants', label: '👥 Teilnehmer' },
             { id: 'check-in', label: '✓ Check-In' },
-            { id: 'tents', label: '🏕️ Zeltplätze' },
             { id: 'photos', label: '📸 Fotos' },
             { id: 'activities', label: '🎯 Aktivitäten' },
             { id: 'pocket-money', label: '💰 Taschengeld' },
-            { id: 'permissions', label: '🔐 Berechtigungen' },
           ].map(tab => (
             <button
               key={tab.id}
@@ -162,7 +156,7 @@ export default function AdminDashboard({ onLogout }) {
                           <div className="text-3xl">⏳</div>
                           <div>
                             <p className="text-sm text-slate-600 font-medium">Fehlen noch</p>
-                            <p className="text-3xl font-bold text-red-600">{checkInStatus.pending || 0}</p>
+                            <p className="text-3xl font-bold text-yellow-600">{checkInStatus.pending || 0}</p>
                           </div>
                         </div>
                       </div>
@@ -171,7 +165,7 @@ export default function AdminDashboard({ onLogout }) {
                           <div className="text-3xl">👥</div>
                           <div>
                             <p className="text-sm text-slate-600 font-medium">Gesamt</p>
-                            <p className="text-3xl font-bold text-navy">{participants.length}</p>
+                            <p className="text-3xl font-bold text-navy">{checkInStatus.total || 0}</p>
                           </div>
                         </div>
                       </div>
@@ -281,11 +275,6 @@ export default function AdminDashboard({ onLogout }) {
               </div>
             )}
 
-            {/* Tents Tab */}
-            {activeTab === 'tents' && (
-              <TentAssignment campId={1} />
-            )}
-
             {/* Photos Tab */}
             {activeTab === 'photos' && (
               <PhotoUpload campId={1} />
@@ -299,11 +288,6 @@ export default function AdminDashboard({ onLogout }) {
             {/* Pocket Money Tab */}
             {activeTab === 'pocket-money' && (
               <PocketMoneyManagement campId={1} />
-            )}
-
-            {/* Permissions Tab */}
-            {activeTab === 'permissions' && (
-              <PermissionsManagement />
             )}
           </>
         )}
