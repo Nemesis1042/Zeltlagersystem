@@ -1,7 +1,5 @@
 <?php
 
-use Lagerbank\Repositories\ActivityRepository;
-use Lagerbank\Repositories\ParticipantRepository;
 
 $activityRepo = new ActivityRepository();
 $participantRepo = new ParticipantRepository();

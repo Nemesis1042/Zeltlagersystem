@@ -1,6 +1,5 @@
 <?php
 
-use Lagerbank\Repositories\ParticipantRepository;
 
 $participantRepo = new ParticipantRepository();
 

@@ -9,10 +9,22 @@ class Router {
     private $path;
 
     public function __construct() {
-        $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        // Remove base path if needed
-        $this->path = str_replace('/backend-php/public', '', $this->path);
+        $this->method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+        if (!empty($_SERVER['PATH_INFO'])) {
+            $this->path = $_SERVER['PATH_INFO'];
+        } elseif (!empty($_SERVER['REQUEST_URI'])) {
+            $this->path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+            $this->path = str_replace('/backend-php/public', '', $this->path);
+        } else {
+            $this->path = '/';
+        }
+
+        // Remove /api prefix for route matching
+        $this->path = preg_replace('#^/api#', '', $this->path);
+        if (empty($this->path)) {
+            $this->path = '/';
+        }
     }
 
     public function get($route, $callback) {

@@ -1,6 +1,5 @@
 <?php
 
-use Lagerbank\Repositories\TentRepository;
 
 $tentRepo = new TentRepository();
 
