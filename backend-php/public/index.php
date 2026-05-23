@@ -28,7 +28,7 @@ require_once __DIR__ . '/../src/services/AuthService.php';
 $router = new Router();
 
 // Health Check
-$router->get('/api/health', function() {
+$router->get('/health', function() {
     http_response_code(200);
     echo json_encode([
         'status' => 'ok',
