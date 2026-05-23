@@ -13,7 +13,7 @@ define('DB_NAME', 'd0470938');
 // App Configuration
 define('APP_NAME', 'BULA2026');
 define('APP_VERSION', '2.0.0');
-define('APP_ENV', 'production');    // development | production
+define('APP_ENV', 'development');    // development | production
 
 // Paths
 define('BASE_PATH', dirname(__DIR__));

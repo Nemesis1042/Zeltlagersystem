@@ -2,7 +2,7 @@
   RewriteEngine On
   RewriteBase /
 
-  # Preserve the original request path for /api/ requests
+  # Preserve the original request path in an environment variable
   RewriteCond %{REQUEST_URI} ^/api/
   RewriteRule ^api/(.*)$ backend-php/public/index.php [QSA,L,E=PATH_INFO:/api/$1]
 

@@ -1,8 +1,4 @@
 <?php
-/**
- * API Router - Simple Routing für REST API
- */
-
 class Router {
     private $routes = array();
     private $method;
@@ -20,7 +16,6 @@ class Router {
             $this->path = '/';
         }
 
-        // Remove /api prefix for route matching
         $this->path = preg_replace('#^/api#', '', $this->path);
         if (empty($this->path)) {
             $this->path = '/';
@@ -48,7 +43,6 @@ class Router {
     }
 
     public function dispatch() {
-        // CORS Headers
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
         header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -60,13 +54,15 @@ class Router {
         }
 
         $route = $this->findRoute();
-
         if ($route === null) {
             $this->notFound();
             return;
         }
 
-        call_user_func($route['callback'], $route['params']);
+        $result = call_user_func($route['callback'], $route['params']);
+        if ($result !== null) {
+            echo $result;
+        }
     }
 
     private function findRoute() {
@@ -86,7 +82,6 @@ class Router {
                 return array('callback' => $callback, 'params' => $params);
             }
         }
-
         return null;
     }
 
@@ -97,10 +92,6 @@ class Router {
 
     private function notFound() {
         http_response_code(404);
-        echo json_encode(array(
-            'error' => 'Route not found',
-            'path' => $this->path,
-            'method' => $this->method
-        ));
+        echo json_encode(array('error' => 'Route not found', 'path' => $this->path, 'method' => $this->method));
     }
 }
