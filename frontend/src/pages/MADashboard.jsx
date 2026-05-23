@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
+import PhotoUpload from '../components/PhotoUpload'
+import ActivityGenerator from '../components/ActivityGenerator'
+import PocketMoneyManagement from '../components/PocketMoneyManagement'
 
 export default function MADashboard({ onLogout }) {
   const navigate = useNavigate()
@@ -88,18 +91,19 @@ export default function MADashboard({ onLogout }) {
 
       {/* Navigation Tabs */}
       <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 flex flex-wrap gap-2">
+        <div className="max-w-7xl mx-auto px-4 flex flex-wrap gap-2 overflow-x-auto">
           {[
-            { id: 'overview', label: '📊 Übersicht', icon: '📊' },
-            { id: 'participants', label: '👥 Teilnehmer', icon: '👥' },
-            { id: 'check-in', label: '✓ Check-In', icon: '✓' },
-            { id: 'groups', label: '👫 Gruppen', icon: '👫' },
-            { id: 'activities', label: '🎯 Aktivitäten', icon: '🎯' },
+            { id: 'overview', label: '📊 Übersicht' },
+            { id: 'participants', label: '👥 Teilnehmer' },
+            { id: 'check-in', label: '✓ Check-In' },
+            { id: 'photos', label: '📸 Fotos' },
+            { id: 'activities', label: '🎯 Aktivitäten' },
+            { id: 'pocket-money', label: '💰 Taschengeld' },
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-4 px-4 border-b-2 font-medium transition-colors ${
+              className={`py-4 px-4 border-b-2 font-medium transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-gold text-navy'
                   : 'border-transparent text-slate-600 hover:text-navy'
@@ -271,26 +275,19 @@ export default function MADashboard({ onLogout }) {
               </div>
             )}
 
-            {/* Groups Tab */}
-            {activeTab === 'groups' && (
-              <div className="card">
-                <h2 className="text-2xl font-bold text-navy mb-6">Gruppen-Verwaltung</h2>
-                <div className="text-center py-12">
-                  <div className="text-5xl mb-3">👫</div>
-                  <p className="text-slate-600">Gruppenzuteilung kommt bald...</p>
-                </div>
-              </div>
+            {/* Photos Tab */}
+            {activeTab === 'photos' && (
+              <PhotoUpload campId={1} />
             )}
 
             {/* Activities Tab */}
             {activeTab === 'activities' && (
-              <div className="card">
-                <h2 className="text-2xl font-bold text-navy mb-6">Aktivitäten & Programme</h2>
-                <div className="text-center py-12">
-                  <div className="text-5xl mb-3">🎯</div>
-                  <p className="text-slate-600">Aktivitätsverwaltung kommt bald...</p>
-                </div>
-              </div>
+              <ActivityGenerator campId={1} />
+            )}
+
+            {/* Pocket Money Tab */}
+            {activeTab === 'pocket-money' && (
+              <PocketMoneyManagement campId={1} />
             )}
           </>
         )}

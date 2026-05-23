@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
+import TentAssignment from '../components/TentAssignment'
+import PhotoUpload from '../components/PhotoUpload'
+import ActivityGenerator from '../components/ActivityGenerator'
+import PocketMoneyManagement from '../components/PocketMoneyManagement'
+import PermissionsManagement from '../components/PermissionsManagement'
+import NotificationsPanel from '../components/NotificationsPanel'
 
 export default function AdminDashboard({ onLogout }) {
   const navigate = useNavigate()
@@ -10,6 +16,7 @@ export default function AdminDashboard({ onLogout }) {
   const [checkInStatus, setCheckInStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showNotifications, setShowNotifications] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -88,19 +95,21 @@ export default function AdminDashboard({ onLogout }) {
 
       {/* Navigation Tabs */}
       <nav className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 flex flex-wrap gap-2">
+        <div className="max-w-7xl mx-auto px-4 flex flex-wrap gap-2 overflow-x-auto">
           {[
-            { id: 'overview', label: '📊 Übersicht', icon: '📊' },
-            { id: 'participants', label: '👥 Teilnehmer', icon: '👥' },
-            { id: 'check-in', label: '✓ Check-In', icon: '✓' },
-            { id: 'tents', label: '🏕️ Zeltplätze', icon: '🏕️' },
-            { id: 'activities', label: '🎯 Aktivitäten', icon: '🎯' },
-            { id: 'pocket-money', label: '💰 Taschengeld', icon: '💰' },
+            { id: 'overview', label: '📊 Übersicht' },
+            { id: 'participants', label: '👥 Teilnehmer' },
+            { id: 'check-in', label: '✓ Check-In' },
+            { id: 'tents', label: '🏕️ Zeltplätze' },
+            { id: 'photos', label: '📸 Fotos' },
+            { id: 'activities', label: '🎯 Aktivitäten' },
+            { id: 'pocket-money', label: '💰 Taschengeld' },
+            { id: 'permissions', label: '🔐 Berechtigungen' },
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-4 px-4 border-b-2 font-medium transition-colors ${
+              className={`py-4 px-4 border-b-2 font-medium transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'border-gold text-navy'
                   : 'border-transparent text-slate-600 hover:text-navy'
@@ -274,35 +283,27 @@ export default function AdminDashboard({ onLogout }) {
 
             {/* Tents Tab */}
             {activeTab === 'tents' && (
-              <div className="card">
-                <h2 className="text-2xl font-bold text-navy mb-6">🏕️ Zeltplatz-Management</h2>
-                <div className="text-center py-12">
-                  <div className="text-5xl mb-3">🏕️</div>
-                  <p className="text-slate-600">Zeltplatz-Zuordnung kommt bald...</p>
-                </div>
-              </div>
+              <TentAssignment campId={1} />
+            )}
+
+            {/* Photos Tab */}
+            {activeTab === 'photos' && (
+              <PhotoUpload campId={1} />
             )}
 
             {/* Activities Tab */}
             {activeTab === 'activities' && (
-              <div className="card">
-                <h2 className="text-2xl font-bold text-navy mb-6">🎯 Aktivitäten & Gruppen-Generator</h2>
-                <div className="text-center py-12">
-                  <div className="text-5xl mb-3">🎯</div>
-                  <p className="text-slate-600">Aktivitätsverwaltung kommt bald...</p>
-                </div>
-              </div>
+              <ActivityGenerator campId={1} />
             )}
 
             {/* Pocket Money Tab */}
             {activeTab === 'pocket-money' && (
-              <div className="card">
-                <h2 className="text-2xl font-bold text-navy mb-6">💰 Taschengeld-System</h2>
-                <div className="text-center py-12">
-                  <div className="text-5xl mb-3">💰</div>
-                  <p className="text-slate-600">Taschengeld & QR-Scanner kommt bald...</p>
-                </div>
-              </div>
+              <PocketMoneyManagement campId={1} />
+            )}
+
+            {/* Permissions Tab */}
+            {activeTab === 'permissions' && (
+              <PermissionsManagement />
             )}
           </>
         )}
