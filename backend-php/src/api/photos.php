@@ -1,6 +1,5 @@
 <?php
 
-use Lagerbank\Repositories\PhotoRepository;
 
 $photoRepo = new PhotoRepository();
 

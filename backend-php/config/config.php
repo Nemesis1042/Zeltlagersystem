@@ -6,9 +6,9 @@
 
 // Database Configuration
 define('DB_HOST', 'localhost');
-define('DB_USER', 'bula2026_db');  // Ersetze mit deinem All-Inkl DB-Benutzer
-define('DB_PASS', '');              // Ersetze mit Passwort
-define('DB_NAME', 'bula2026');      // Ersetze mit deinem DB-Namen
+define('DB_USER', 'd0470938');
+define('DB_PASS', 'Za5KgCOQf-Z1tMa1xova');
+define('DB_NAME', 'd0470938');
 
 // App Configuration
 define('APP_NAME', 'BULA2026');
@@ -21,7 +21,7 @@ define('PUBLIC_PATH', BASE_PATH . '/public');
 define('UPLOAD_PATH', BASE_PATH . '/uploads');
 
 // JWT/Authentication
-define('JWT_SECRET', ''); // Generiere einen sicheren Key
+define('JWT_SECRET', 'BULA2026_JWT_SECRET_KEY_zeltlager_camp_management_system');
 define('JWT_EXPIRY', 86400 * 7); // 7 Tage
 
 // Email Configuration

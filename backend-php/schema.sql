@@ -3,20 +3,21 @@
 -- UTF-8 Encoding
 
 -- Users Table
-CREATE TABLE users (
+CREATE TABLE auth_users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     vorname VARCHAR(100),
     nachname VARCHAR(100),
-    telefon VARCHAR(20),
     role ENUM('admin', 'ma', 'eltern') DEFAULT 'eltern',
-    active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_email (email),
     INDEX idx_role (role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Insert default admin account (password: admin123 hashed with bcrypt)
+INSERT INTO auth_users (email, password, vorname, nachname, role) VALUES
+('admin@lagerbank.info', '$2y$10$5h7.mNqN9v6J6OKm0L3Y0.9h8oKqN8zJzN7q4q3W5q9q0q8e8b0kK', 'Admin', 'User', 'admin');
 
 -- Camps Table
 CREATE TABLE camps (
@@ -105,7 +106,7 @@ CREATE TABLE registrations (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     FOREIGN KEY (camp_id) REFERENCES camps(id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES auth_users(id),
     INDEX idx_camp_id (camp_id),
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -124,9 +125,9 @@ CREATE TABLE participants (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (camp_id) REFERENCES camps(id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES auth_users(id),
     FOREIGN KEY (registration_id) REFERENCES registrations(id),
-    FOREIGN KEY (checked_in_by_id) REFERENCES users(id),
+    FOREIGN KEY (checked_in_by_id) REFERENCES auth_users(id),
     INDEX idx_camp_id (camp_id),
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -176,7 +177,7 @@ CREATE TABLE activity_groups (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (activity_id) REFERENCES activities(id),
-    FOREIGN KEY (betreuer_id) REFERENCES users(id),
+    FOREIGN KEY (betreuer_id) REFERENCES auth_users(id),
     INDEX idx_activity_id (activity_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -221,7 +222,7 @@ CREATE TABLE transactions (
 
     FOREIGN KEY (participant_id) REFERENCES participants(id),
     FOREIGN KEY (account_id) REFERENCES pocket_money_accounts(id),
-    FOREIGN KEY (ma_user_id) REFERENCES users(id),
+    FOREIGN KEY (ma_user_id) REFERENCES auth_users(id),
     INDEX idx_participant_id (participant_id),
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -250,7 +251,7 @@ CREATE TABLE photos (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (camp_id) REFERENCES camps(id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES auth_users(id),
     INDEX idx_camp_id (camp_id),
     INDEX idx_released (released)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
