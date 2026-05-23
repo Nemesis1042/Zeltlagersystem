@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
 
-export default function AdminDashboard({ onLogout }) {
+export default function MADashboard({ onLogout }) {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
   const [user, setUser] = useState(null)
@@ -65,8 +65,8 @@ export default function AdminDashboard({ onLogout }) {
           <div className="flex items-center gap-3">
             <div className="text-3xl">⛺</div>
             <div>
-              <h1 className="text-2xl font-bold text-navy">BULA2026 Admin Panel</h1>
-              <p className="text-sm text-slate-500">Vollständige Lagerverwaltung</p>
+              <h1 className="text-2xl font-bold text-navy">BULA2026 Mitarbeiter Dashboard</h1>
+              <p className="text-sm text-slate-500">Lagerverwaltung & Koordination</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -93,9 +93,8 @@ export default function AdminDashboard({ onLogout }) {
             { id: 'overview', label: '📊 Übersicht', icon: '📊' },
             { id: 'participants', label: '👥 Teilnehmer', icon: '👥' },
             { id: 'check-in', label: '✓ Check-In', icon: '✓' },
-            { id: 'tents', label: '🏕️ Zeltplätze', icon: '🏕️' },
+            { id: 'groups', label: '👫 Gruppen', icon: '👫' },
             { id: 'activities', label: '🎯 Aktivitäten', icon: '🎯' },
-            { id: 'pocket-money', label: '💰 Taschengeld', icon: '💰' },
           ].map(tab => (
             <button
               key={tab.id}
@@ -153,7 +152,7 @@ export default function AdminDashboard({ onLogout }) {
                           <div className="text-3xl">⏳</div>
                           <div>
                             <p className="text-sm text-slate-600 font-medium">Fehlen noch</p>
-                            <p className="text-3xl font-bold text-red-600">{checkInStatus.pending || 0}</p>
+                            <p className="text-3xl font-bold text-yellow-600">{checkInStatus.pending || 0}</p>
                           </div>
                         </div>
                       </div>
@@ -162,7 +161,7 @@ export default function AdminDashboard({ onLogout }) {
                           <div className="text-3xl">👥</div>
                           <div>
                             <p className="text-sm text-slate-600 font-medium">Gesamt</p>
-                            <p className="text-3xl font-bold text-navy">{participants.length}</p>
+                            <p className="text-3xl font-bold text-navy">{checkInStatus.total || 0}</p>
                           </div>
                         </div>
                       </div>
@@ -272,13 +271,13 @@ export default function AdminDashboard({ onLogout }) {
               </div>
             )}
 
-            {/* Tents Tab */}
-            {activeTab === 'tents' && (
+            {/* Groups Tab */}
+            {activeTab === 'groups' && (
               <div className="card">
-                <h2 className="text-2xl font-bold text-navy mb-6">🏕️ Zeltplatz-Management</h2>
+                <h2 className="text-2xl font-bold text-navy mb-6">Gruppen-Verwaltung</h2>
                 <div className="text-center py-12">
-                  <div className="text-5xl mb-3">🏕️</div>
-                  <p className="text-slate-600">Zeltplatz-Zuordnung kommt bald...</p>
+                  <div className="text-5xl mb-3">👫</div>
+                  <p className="text-slate-600">Gruppenzuteilung kommt bald...</p>
                 </div>
               </div>
             )}
@@ -286,21 +285,10 @@ export default function AdminDashboard({ onLogout }) {
             {/* Activities Tab */}
             {activeTab === 'activities' && (
               <div className="card">
-                <h2 className="text-2xl font-bold text-navy mb-6">🎯 Aktivitäten & Gruppen-Generator</h2>
+                <h2 className="text-2xl font-bold text-navy mb-6">Aktivitäten & Programme</h2>
                 <div className="text-center py-12">
                   <div className="text-5xl mb-3">🎯</div>
                   <p className="text-slate-600">Aktivitätsverwaltung kommt bald...</p>
-                </div>
-              </div>
-            )}
-
-            {/* Pocket Money Tab */}
-            {activeTab === 'pocket-money' && (
-              <div className="card">
-                <h2 className="text-2xl font-bold text-navy mb-6">💰 Taschengeld-System</h2>
-                <div className="text-center py-12">
-                  <div className="text-5xl mb-3">💰</div>
-                  <p className="text-slate-600">Taschengeld & QR-Scanner kommt bald...</p>
                 </div>
               </div>
             )}

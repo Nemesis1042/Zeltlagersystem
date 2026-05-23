@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import AdminDashboard from './pages/AdminDashboard'
+import MADashboard from './pages/MADashboard'
+import ElternDashboard from './pages/ElternDashboard'
 import RegistrationForm from './pages/RegistrationForm'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -35,7 +37,25 @@ function App() {
           }
         />
 
-        <Route path="/" element={<Navigate to="/anmeldung" replace />} />
+        <Route
+          path="/ma-dashboard"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <MADashboard onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/eltern-dashboard"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ElternDashboard onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   )
