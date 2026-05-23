@@ -19,12 +19,12 @@ class AuthService {
     public function login($email, $password) {
         $user = $this->userRepo->findByEmail($email);
 
-        if (!$user || !password_verify($password, $user['password_hash'])) {
+        if (!$user) {
             throw new Exception('Ungültige Email oder Passwort', 401);
         }
 
-        if (!$user['active']) {
-            throw new Exception('Benutzer ist inaktiv', 403);
+        if (!password_verify($password, $user['password'])) {
+            throw new Exception('Ungültige Email oder Passwort', 401);
         }
 
         return array(
@@ -34,22 +34,19 @@ class AuthService {
     }
 
     /**
-     * Registration - Neue Benutzer (Staff/Admin)
+     * Registration - Neue Benutzer
      */
     public function register($email, $password, $vorname, $nachname, $role = 'ma') {
-        // Überprüfe ob Email existiert
         if ($this->userRepo->findByEmail($email)) {
             throw new Exception('Email existiert bereits', 400);
         }
 
-        // Erstelle neuen Benutzer
         $userId = $this->userRepo->create(array(
             'email' => $email,
             'password_hash' => password_hash($password, PASSWORD_BCRYPT),
             'vorname' => $vorname,
             'nachname' => $nachname,
-            'role' => $role,
-            'active' => true
+            'role' => $role
         ));
 
         $user = $this->userRepo->findById($userId);
@@ -95,12 +92,10 @@ class AuthService {
             $payload = json_decode(base64_decode($parts[1]), true);
             $signature = $parts[2];
 
-            // Überprüfe Ablauf
             if ($payload['exp'] < time()) {
                 throw new Exception('Token ist abgelaufen');
             }
 
-            // Überprüfe Signatur
             $expectedSignature = base64_encode(hash_hmac(
                 'sha256',
                 $parts[0] . '.' . $parts[1],
@@ -134,10 +129,10 @@ class AuthService {
     }
 
     /**
-     * Sichere sensitive Daten
+     * Sensitive Daten entfernen
      */
     private function sanitizeUser($user) {
-        unset($user['password_hash']);
+        unset($user['password']);
         return $user;
     }
 }
