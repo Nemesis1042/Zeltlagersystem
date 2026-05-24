@@ -1,6 +1,5 @@
--- Create database
-CREATE DATABASE IF NOT EXISTS bula2026;
-USE bula2026;
+-- Use existing database
+USE d0470938;
 
 -- Photos table
 CREATE TABLE IF NOT EXISTS photos (
