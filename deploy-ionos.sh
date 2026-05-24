@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #=============================================================================
-# BULA2026 - IONOS SSH Deploy
-# Vereinfachtes Deployment für IONOS Hosting
+# BULA2026 - IONOS SCP Deploy
+# Einfaches Deployment für IONOS mit scp
 #=============================================================================
 
 set -e
@@ -14,39 +14,27 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}╔═══════════════════════════════════════════╗"
-echo "║  BULA2026 → IONOS Deploy                 ║"
+echo "║  BULA2026 → IONOS Deploy (scp)          ║"
 echo "╚═══════════════════════════════════════════╝${NC}"
 
 #=============================================================================
 # KONFIGURATION
 #=============================================================================
 
-echo -e "\n${YELLOW}SSH Details eingeben:${NC}"
-read -p "SSH Host (z.B. ssh.ionos.com): " SSH_HOST
-read -p "IONOS Username: " SSH_USER
-read -p "Domain (z.B. lagerbank.info): " DOMAIN
-read -p "Web Root Pfad (z.B. /kunden/homepages/xx/): " WEB_ROOT
+echo -e "\n${YELLOW}IONOS SSH Details:${NC}"
+read -p "SSH Alias (z.B. ionos): " SSH_ALIAS
+read -p "IONOS Web-Root Code (z.B. w01e9b9c): " WEB_CODE
 
-# Trim trailing slash
-WEB_ROOT="${WEB_ROOT%/}"
+IONOS_HOST="${SSH_ALIAS}:/www/htdocs/${WEB_CODE}"
 
-# Test SSH connection
-echo -e "\n${BLUE}Teste SSH-Verbindung...${NC}"
-if ! ssh -o ConnectTimeout=5 $SSH_USER@$SSH_HOST "echo OK" &> /dev/null; then
-    echo -e "${RED}✗ SSH-Verbindung fehlgeschlagen${NC}"
+# Test connection
+echo -e "\n${BLUE}Teste Verbindung...${NC}"
+if ! scp -q -o ConnectTimeout=5 /dev/null $IONOS_HOST/ 2>/dev/null; then
+    echo -e "${RED}✗ Verbindung fehlgeschlagen${NC}"
+    echo "Prüfe: SSH Alias korrekt? Web-Root Code korrekt?"
     exit 1
 fi
-echo -e "${GREEN}✓ SSH OK${NC}"
-
-#=============================================================================
-# DEPLOYMENT WAHL
-#=============================================================================
-
-echo -e "\n${BLUE}Was deployen?${NC}"
-echo "1) Admin + Backend (lagerbank.info)"
-echo "2) Registration (anmeldung.lagerbank.info)"
-echo "3) Beides"
-read -p "Wahl (1-3): " CHOICE
+echo -e "${GREEN}✓ Verbindung OK${NC}"
 
 #=============================================================================
 # BUILD CHECK
@@ -59,6 +47,16 @@ if [ ! -d "frontend/dist-admin" ] || [ ! -d "frontend/dist-registration" ]; then
 fi
 
 #=============================================================================
+# DEPLOYMENT WAHL
+#=============================================================================
+
+echo -e "\n${BLUE}Was deployen?${NC}"
+echo "1) Admin + Backend (lagerbank.info)"
+echo "2) Registration (anmeldung.lagerbank.info)"
+echo "3) Beides"
+read -p "Wahl (1-3): " CHOICE
+
+#=============================================================================
 # UPLOAD
 #=============================================================================
 
@@ -66,34 +64,34 @@ echo -e "\n${YELLOW}Starte Upload...${NC}\n"
 
 case $CHOICE in
     1|3)
-        echo -e "${BLUE}📤 Admin + Backend${NC}"
-        rsync -avz --delete -e "ssh" \
-            backend-php/ \
-            $SSH_USER@$SSH_HOST:$WEB_ROOT/lagerbank.info/backend-php/
+        echo -e "${BLUE}📤 Backend + Admin${NC}"
         
-        rsync -avz -e "ssh" \
-            frontend/dist-admin/ \
-            $SSH_USER@$SSH_HOST:$WEB_ROOT/lagerbank.info/
+        # Backend hochladen
+        scp -r backend-php/src $IONOS_HOST/lagerbank.info/backend-php/
+        scp -r backend-php/config $IONOS_HOST/lagerbank.info/backend-php/
+        scp backend-php/public/index.php $IONOS_HOST/lagerbank.info/backend-php/public/
         
-        rsync -avz -e "ssh" \
-            .htaccess \
-            $SSH_USER@$SSH_HOST:$WEB_ROOT/lagerbank.info/.htaccess
+        # Admin-App hochladen
+        scp -r frontend/dist-admin/assets $IONOS_HOST/lagerbank.info/
+        scp frontend/dist-admin/index.html $IONOS_HOST/lagerbank.info/
         
-        ssh $SSH_USER@$SSH_HOST "mkdir -p $WEB_ROOT/lagerbank.info/uploads/photos"
-        echo -e "${GREEN}✓ Admin + Backend OK${NC}"
+        # .htaccess hochladen
+        scp .htaccess $IONOS_HOST/lagerbank.info/
+        
+        echo -e "${GREEN}✓ Backend + Admin OK${NC}"
         ;;
 esac
 
 case $CHOICE in
     2|3)
         echo -e "${BLUE}📤 Registration${NC}"
-        rsync -avz --delete -e "ssh" \
-            frontend/dist-registration/ \
-            $SSH_USER@$SSH_HOST:$WEB_ROOT/anmeldung.lagerbank.info/
         
-        rsync -avz -e "ssh" \
-            .htaccess \
-            $SSH_USER@$SSH_HOST:$WEB_ROOT/anmeldung.lagerbank.info/.htaccess
+        # Registration-App hochladen
+        scp -r frontend/dist-registration/assets $IONOS_HOST/anmeldung.lagerbank.info/
+        scp frontend/dist-registration/registration.html $IONOS_HOST/anmeldung.lagerbank.info/index.html
+        
+        # .htaccess hochladen
+        scp .htaccess $IONOS_HOST/anmeldung.lagerbank.info/
         
         echo -e "${GREEN}✓ Registration OK${NC}"
         ;;
@@ -105,7 +103,13 @@ esac
 
 echo -e "\n${GREEN}✓ DEPLOYMENT FERTIG!${NC}"
 echo -e "\n${YELLOW}Noch zu tun:${NC}"
-echo "1. backend-php/config/config.php mit DB-Daten füllen"
+echo "1. config.php mit DB-Daten füllen:"
+echo "   scp backend-php/config/config.php $IONOS_HOST/lagerbank.info/backend-php/config/"
+echo ""
 echo "2. Datenbank erstellen und schema.sql importieren"
-echo "3. Testen: https://lagerbank.info"
+echo ""
+echo "3. Testen:"
+echo "   https://lagerbank.info (Admin)"
+echo "   https://anmeldung.lagerbank.info (Registration)"
+echo ""
 echo "   Login: admin@lagerbank.info / admin123"
