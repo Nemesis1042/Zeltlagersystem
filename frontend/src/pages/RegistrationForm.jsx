@@ -1,12 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 
 export default function RegistrationForm() {
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(0)
+  const [camps, setCamps] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [formData, setFormData] = useState({
+    // Camp Selection
+    camp_id: '',
+
     // Login Account
     create_account: false,
     email: '',
@@ -69,6 +73,19 @@ export default function RegistrationForm() {
     medikamente_gabe_erlaubnis: false,
   })
 
+  useEffect(() => {
+    loadCamps()
+  }, [])
+
+  const loadCamps = async () => {
+    try {
+      const response = await axios.get('https://lagerbank.info/api/camps/')
+      setCamps(response.data)
+    } catch (err) {
+      setError('Zeltlager konnten nicht geladen werden')
+    }
+  }
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setFormData(prev => ({
@@ -83,6 +100,12 @@ export default function RegistrationForm() {
     setError('')
 
     try {
+      if (!formData.camp_id) {
+        setError('Bitte wähle ein Zeltlager aus')
+        setLoading(false)
+        return
+      }
+
       // Validate passwords if creating account
       if (formData.create_account) {
         if (!formData.email || !formData.password) {
@@ -135,11 +158,11 @@ export default function RegistrationForm() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            {[1, 2, 3, 4, 5].map(s => (
+            {[0, 1, 2, 3, 4, 5].map(s => (
               <button
                 key={s}
                 onClick={() => setStep(s)}
-                className={`w-12 h-12 rounded-full font-semibold ${
+                className={`w-12 h-12 rounded-full font-semibold text-sm ${
                   s === step
                     ? 'bg-blue-600 text-white'
                     : s < step
@@ -147,7 +170,7 @@ export default function RegistrationForm() {
                     : 'bg-gray-300 text-gray-600'
                 }`}
               >
-                {s}
+                {s === 0 ? '🏕️' : s}
               </button>
             ))}
           </div>
@@ -155,6 +178,48 @@ export default function RegistrationForm() {
         </div>
 
         <form onSubmit={handleSubmit}>
+          {/* Step 0: Zeltlager Auswahl */}
+          {step === 0 && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-semibold mb-4">🏕️ Welches Zeltlager?</h2>
+              <p className="text-gray-600 mb-6">Bitte wähle das Zeltlager aus, für das du dich anmelden möchtest:</p>
+
+              <div className="grid grid-cols-1 gap-4">
+                {camps.length > 0 ? (
+                  camps.map(camp => (
+                    <label
+                      key={camp.id}
+                      className={`relative flex items-center p-6 border-2 rounded-lg cursor-pointer transition ${
+                        formData.camp_id === String(camp.id)
+                          ? 'border-blue-600 bg-blue-50'
+                          : 'border-gray-300 bg-white hover:border-blue-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="camp_id"
+                        value={camp.id}
+                        checked={formData.camp_id === String(camp.id)}
+                        onChange={handleChange}
+                        className="w-5 h-5"
+                      />
+                      <div className="ml-4">
+                        <h3 className="font-bold text-lg">{camp.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          {camp.date_start && camp.date_end
+                            ? `${new Date(camp.date_start).toLocaleDateString('de-DE')} - ${new Date(camp.date_end).toLocaleDateString('de-DE')}`
+                            : 'Datum nicht angegeben'}
+                        </p>
+                      </div>
+                    </label>
+                  ))
+                ) : (
+                  <p className="text-gray-600">Keine Zeltlager verfügbar</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Step 1: Teilnehmer */}
           {step === 1 && (
             <div className="space-y-4">
@@ -672,9 +737,9 @@ export default function RegistrationForm() {
           <div className="flex justify-between mt-8">
             <button
               type="button"
-              onClick={() => setStep(Math.max(1, step - 1))}
+              onClick={() => setStep(Math.max(0, step - 1))}
               className="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-              disabled={step === 1}
+              disabled={step === 0}
             >
               Zurück
             </button>
@@ -691,7 +756,8 @@ export default function RegistrationForm() {
               <button
                 type="button"
                 onClick={() => setStep(step + 1)}
-                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                disabled={step === 0 && !formData.camp_id}
+                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
               >
                 Weiter →
               </button>
