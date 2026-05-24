@@ -168,5 +168,5 @@ ON DUPLICATE KEY UPDATE date_start=VALUES(date_start);
 
 -- Insert sample admin user (password: admin123)
 INSERT INTO users (email, vorname, nachname, role, password) VALUES
-('admin@bula2026.de', 'Admin', 'User', 'admin', '$2y$10$r9h7cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jKMm2')
+('admin@lagerbank.info', 'Admin', 'User', 'admin', '$2y$10$r9h7cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jKMm2')
 ON DUPLICATE KEY UPDATE email=email;
