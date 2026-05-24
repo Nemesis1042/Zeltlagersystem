@@ -52,7 +52,7 @@ $router->get('/registrations/{id}', function($id) use ($registrationRepo) {
 // GET /registrations/camp/{camp_id} - Alle Anmeldungen eines Camps
 $router->get('/registrations/camp/{camp_id}', function($camp_id) use ($registrationRepo) {
     $registrations = $registrationRepo->getByCampId($camp_id);
-    return json_encode(['registrations' => $registrations]);
+    return json_encode($registrations);
 });
 
 // GET /plz-lookup/{plz} - PLZ zu Stadt Lookup (für Auto-Fill)
