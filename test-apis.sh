@@ -1,9 +1,12 @@
 #!/bin/bash
 
 # Test all API endpoints after deployment
+# Usage: ./test-apis.sh [domain]
+# Example: ./test-apis.sh lagerbank.info
 
-API_URL="https://lagerbank.info/api"
-ADMIN_EMAIL="admin@lagerbank.info"
+DOMAIN="${1:-lagerbank.info}"
+API_URL="https://${DOMAIN}/api"
+ADMIN_EMAIL="admin@${DOMAIN}"
 ADMIN_PASS="Bula2026!"
 
 echo "🧪 Testing BULA2026 API Endpoints..."
