@@ -18,38 +18,50 @@ fi
 
 # Ask what to deploy
 echo -e "${BLUE}Was deployen?${NC}"
-echo "1) Admin + Backend"
-echo "2) Registration"
-echo "3) Beides"
+echo "1) Admin + Backend (complete)"
+echo "2) Registration only"
+echo "3) Beides (both complete)"
 read -p "Wahl (1-3): " CHOICE
 
 echo -e "\n${YELLOW}Uploade...${NC}\n"
 
 case $CHOICE in
     1|3)
-        echo -e "${BLUE}📤 Backend + Admin${NC}"
-        scp -r backend-php/src ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/
-        scp -r backend-php/config ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/
-        scp backend-php/public/index.php ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/public/
-        scp -r frontend/dist-admin/assets ionos:/www/htdocs/w01e9b9c/lagerbank.info/
+        echo -e "${BLUE}📤 Backend + Admin (komplett)${NC}"
+
+        # Backend komplett hochladen (alle änderungen)
+        scp -r backend-php/src/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/src/
+        scp -r backend-php/config/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/config/
+        scp -r backend-php/public/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/public/
+
+        # Admin Frontend hochladen
+        scp -r frontend/dist-admin/assets/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/assets/
         scp frontend/dist-admin/index.html ionos:/www/htdocs/w01e9b9c/lagerbank.info/
+
+        # .htaccess für URL Rewriting
         scp .htaccess ionos:/www/htdocs/w01e9b9c/lagerbank.info/
+
         echo -e "${GREEN}✓ Admin + Backend OK${NC}"
         ;;
 esac
 
 case $CHOICE in
     2|3)
-        echo -e "${BLUE}📤 Registration${NC}"
-        scp -r frontend/dist-registration/assets ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/
+        echo -e "${BLUE}📤 Registration (komplett)${NC}"
+
+        # Registration Frontend hochladen
+        scp -r frontend/dist-registration/assets/* ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/assets/
         scp frontend/dist-registration/registration.html ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/index.html
+
+        # .htaccess für URL Rewriting
         scp .htaccess ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/
+
         echo -e "${GREEN}✓ Registration OK${NC}"
         ;;
 esac
 
 echo -e "\n${GREEN}✓ FERTIG!${NC}"
-echo -e "\n${YELLOW}Noch zu tun:${NC}"
-echo "1. config.php mit DB-Daten füllen"
-echo "2. schema.sql importieren"
-echo "3. https://lagerbank.info testen"
+echo -e "\nDeployment erfolgreich hochgeladen."
+echo -e "Änderungen sind live auf:"
+echo -e "  - Admin: https://lagerbank.info"
+echo -e "  - Registration: https://anmeldung.lagerbank.info"
