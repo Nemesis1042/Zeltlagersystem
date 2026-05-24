@@ -224,8 +224,8 @@ export default function AdminDashboard({ onLogout }) {
                       {participants.map(p => (
                         <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                           <td className="px-4 py-3 text-slate-700">{p.id}</td>
-                          <td className="px-4 py-3 text-slate-700 font-medium">TN {p.id}</td>
-                          <td className="px-4 py-3 text-slate-700">{p.zelt_id ? `Zelt ${p.zelt_id}` : '-'}</td>
+                          <td className="px-4 py-3 text-slate-700 font-medium">{p.tn_vorname || 'N/A'} {p.tn_familienname || ''}</td>
+                          <td className="px-4 py-3 text-slate-700">{p.zelt_name ? p.zelt_name : (p.zelt_id ? `Zelt ${p.zelt_id}` : '-')}</td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                               p.status === 'angekommen'
