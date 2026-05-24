@@ -1,9 +1,11 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import AdminLayout from '../components/AdminLayout'
 import ActivityGenerator from '../components/ActivityGenerator'
 
 export default function AdminActivities({ onLogout }) {
+  const { campId } = useCamp()
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -26,7 +28,7 @@ export default function AdminActivities({ onLogout }) {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await api.get('/activities/?camp_id=1', {
+      const response = await api.get(`/activities/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setActivities(Array.isArray(response.data) ? response.data : [])
@@ -46,7 +48,7 @@ export default function AdminActivities({ onLogout }) {
       await api.post('/activities/', {
         ...formData,
         group_size: parseInt(formData.group_size),
-        camp_id: 1
+        camp_id: campId
       }, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -311,7 +313,7 @@ export default function AdminActivities({ onLogout }) {
         {/* Activity Generator */}
         <div className="mt-12">
           <h3 className="text-2xl font-bold text-navy mb-6">📋 Automatische Gruppenaufteilung</h3>
-          <ActivityGenerator campId={1} />
+          <ActivityGenerator campId={campId} />
         </div>
       </div>
     </AdminLayout>

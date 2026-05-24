@@ -1,8 +1,10 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import ElternLayout from '../components/ElternLayout'
 
 export default function ElternChild({ onLogout }) {
+  const { campId } = useCamp()
   const [participant, setParticipant] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -18,7 +20,7 @@ export default function ElternChild({ onLogout }) {
       const user = JSON.parse(localStorage.getItem('user') || '{}')
 
       // Get participant data for logged in user
-      const response = await api.get('/participants/?camp_id=1', {
+      const response = await api.get(`/participants/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 

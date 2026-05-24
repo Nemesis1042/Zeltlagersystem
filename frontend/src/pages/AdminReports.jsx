@@ -1,8 +1,10 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import AdminLayout from '../components/AdminLayout'
 
 export default function AdminReports({ onLogout }) {
+  const { campId } = useCamp()
   const [participants, setParticipants] = useState([])
   const [transactions, setTransactions] = useState([])
   const [activities, setActivities] = useState([])
@@ -20,22 +22,22 @@ export default function AdminReports({ onLogout }) {
       setLoading(true)
       const token = localStorage.getItem('token')
 
-      const partResponse = await api.get('/participants/?camp_id=1', {
+      const partResponse = await api.get(`/participants/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setParticipants(Array.isArray(partResponse.data) ? partResponse.data : [])
 
-      const transResponse = await api.get('/transactions/?camp_id=1', {
+      const transResponse = await api.get(`/transactions/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setTransactions(Array.isArray(transResponse.data) ? transResponse.data : [])
 
-      const actResponse = await api.get('/activities/?camp_id=1', {
+      const actResponse = await api.get(`/activities/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setActivities(Array.isArray(actResponse.data) ? actResponse.data : [])
 
-      const statsResponse = await api.get('/finances/statistics/?camp_id=1', {
+      const statsResponse = await api.get(`/finances/statistics/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setStats(statsResponse.data)

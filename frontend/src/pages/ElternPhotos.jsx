@@ -1,8 +1,10 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import ElternLayout from '../components/ElternLayout'
 
 export default function ElternPhotos({ onLogout }) {
+  const { campId } = useCamp()
   const [photos, setPhotos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -15,7 +17,7 @@ export default function ElternPhotos({ onLogout }) {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await api.get('/photos/?camp_id=1', {
+      const response = await api.get(`/photos/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       // Filter only released photos

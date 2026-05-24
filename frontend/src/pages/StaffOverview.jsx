@@ -1,8 +1,10 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import StaffLayout from '../components/StaffLayout'
 
 export default function StaffOverview({ onLogout }) {
+  const { campId } = useCamp()
   const [stats, setStats] = useState(null)
   const [participants, setParticipants] = useState([])
   const [activities, setActivities] = useState([])
@@ -25,13 +27,13 @@ export default function StaffOverview({ onLogout }) {
       setStats(statusResponse.data)
 
       // Load participants
-      const partResponse = await api.get('/participants/?camp_id=1', {
+      const partResponse = await api.get(`/participants/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setParticipants(Array.isArray(partResponse.data) ? partResponse.data : [])
 
       // Load activities
-      const actResponse = await api.get('/activities/?camp_id=1', {
+      const actResponse = await api.get(`/activities/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setActivities(Array.isArray(actResponse.data) ? actResponse.data : [])

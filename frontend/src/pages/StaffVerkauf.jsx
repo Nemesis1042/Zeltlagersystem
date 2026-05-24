@@ -1,9 +1,11 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useRef, useEffect } from 'react'
 import api from '../utils/api'
 import StaffLayout from '../components/StaffLayout'
 import jsQR from 'jsqr'
 
 export default function StaffVerkauf({ onLogout }) {
+  const { campId } = useCamp()
   const [products, setProducts] = useState([])
   const [scannedParticipant, setScannedParticipant] = useState(null)
   const [participantBalance, setParticipantBalance] = useState(0)
@@ -80,7 +82,7 @@ export default function StaffVerkauf({ onLogout }) {
 
   const loadParticipant = async (participantId) => {
     try {
-      const response = await api.get(`/pocket-money/participant/${participantId}/?camp_id=1`)
+      const response = await api.get(`/pocket-money/participant/${participantId}/?camp_id=${campId}`)
       setScannedParticipant(participantId)
       setParticipantBalance(response.data.balance || 0)
       setMessage(`Teilnehmer ${participantId} gescannt`)

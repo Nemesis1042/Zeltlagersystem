@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import api from '../utils/api'
 import AdminLayout from '../components/AdminLayout'
 import PermissionsManagement from '../components/PermissionsManagement'
 

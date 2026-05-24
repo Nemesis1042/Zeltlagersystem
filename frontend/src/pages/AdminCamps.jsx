@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import AdminLayout from '../components/AdminLayout'
+import { useCamp } from '../context/CampContext'
 
 export default function AdminCamps({ onLogout }) {
+  const { campId } = useCamp()
   const [camps, setCamps] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

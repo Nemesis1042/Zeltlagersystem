@@ -1,9 +1,11 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import AdminLayout from '../components/AdminLayout'
 import TentAssignment from '../components/TentAssignment'
 
 export default function AdminTents({ onLogout }) {
+  const { campId } = useCamp()
   const [tents, setTents] = useState([])
   const [participants, setParticipants] = useState([])
   const [loading, setLoading] = useState(true)
@@ -26,12 +28,12 @@ export default function AdminTents({ onLogout }) {
       setLoading(true)
       const token = localStorage.getItem('token')
 
-      const tentResponse = await api.get('/tents/?camp_id=1', {
+      const tentResponse = await api.get(`/tents/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setTents(Array.isArray(tentResponse.data) ? tentResponse.data : [])
 
-      const partResponse = await api.get('/participants/?camp_id=1', {
+      const partResponse = await api.get(`/participants/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setParticipants(Array.isArray(partResponse.data) ? partResponse.data : [])
@@ -51,7 +53,7 @@ export default function AdminTents({ onLogout }) {
       await api.post('/tents/', {
         ...formData,
         capacity: parseInt(formData.capacity),
-        camp_id: 1
+        camp_id: campId
       }, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -275,7 +277,7 @@ export default function AdminTents({ onLogout }) {
         {/* Tent Assignment Component */}
         <div className="mt-12">
           <h3 className="text-2xl font-bold text-navy mb-6">🏕️ Zeltplatz-Verwaltung</h3>
-          <TentAssignment campId={1} />
+          <TentAssignment campId={campId} />
         </div>
       </div>
     </AdminLayout>

@@ -1,9 +1,11 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import StaffLayout from '../components/StaffLayout'
 import ActivityGenerator from '../components/ActivityGenerator'
 
 export default function StaffActivities({ onLogout }) {
+  const { campId } = useCamp()
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -16,7 +18,7 @@ export default function StaffActivities({ onLogout }) {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await api.get('/activities/?camp_id=1', {
+      const response = await api.get(`/activities/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setActivities(Array.isArray(response.data) ? response.data : [])
@@ -101,7 +103,7 @@ export default function StaffActivities({ onLogout }) {
         {/* Group Generator */}
         <div className="mt-12">
           <h3 className="text-2xl font-bold text-blue-600 mb-6">📋 Gruppenaufteilung</h3>
-          <ActivityGenerator campId={1} />
+          <ActivityGenerator campId={campId} />
         </div>
       </div>
     </StaffLayout>

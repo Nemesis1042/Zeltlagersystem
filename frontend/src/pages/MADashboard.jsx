@@ -1,3 +1,4 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
@@ -6,6 +7,7 @@ import ActivityGenerator from '../components/ActivityGenerator'
 import PocketMoneyManagement from '../components/PocketMoneyManagement'
 
 export default function MADashboard({ onLogout }) {
+  const { campId } = useCamp()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
   const [user, setUser] = useState(null)
@@ -28,7 +30,7 @@ export default function MADashboard({ onLogout }) {
 
       // Load participants
       try {
-        const partResponse = await api.get('/participants/?camp_id=1', {
+        const partResponse = await api.get(`/participants/?camp_id=${campId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         setParticipants(partResponse.data || [])
@@ -277,17 +279,17 @@ export default function MADashboard({ onLogout }) {
 
             {/* Photos Tab */}
             {activeTab === 'photos' && (
-              <PhotoUpload campId={1} />
+              <PhotoUpload campId={campId} />
             )}
 
             {/* Activities Tab */}
             {activeTab === 'activities' && (
-              <ActivityGenerator campId={1} />
+              <ActivityGenerator campId={campId} />
             )}
 
             {/* Pocket Money Tab */}
             {activeTab === 'pocket-money' && (
-              <PocketMoneyManagement campId={1} />
+              <PocketMoneyManagement campId={campId} />
             )}
           </>
         )}

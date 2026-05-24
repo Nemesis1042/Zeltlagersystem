@@ -1,8 +1,10 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../utils/api'
 
 export default function ElternDashboard({ onLogout }) {
+  const { campId } = useCamp()
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [participant, setParticipant] = useState(null)
@@ -34,7 +36,7 @@ export default function ElternDashboard({ onLogout }) {
 
       // Load photos
       try {
-        const photoResponse = await api.get('/photos?camp_id=1', {
+        const photoResponse = await api.get('/photos?camp_id=${campId}', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         setPhotos(photoResponse.data || [])

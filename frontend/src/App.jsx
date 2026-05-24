@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { CampProvider } from './context/CampContext'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import RegistrationForm from './pages/RegistrationForm'
@@ -48,7 +49,8 @@ function App() {
   }
 
   return (
-    <Router>
+    <CampProvider>
+      <Router>
       <Routes>
         <Route path="/anmeldung" element={<RegistrationForm />} />
         <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
@@ -252,6 +254,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
+    </CampProvider>
   )
 }
 

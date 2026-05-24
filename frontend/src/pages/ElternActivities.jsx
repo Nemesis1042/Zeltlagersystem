@@ -1,8 +1,10 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import ElternLayout from '../components/ElternLayout'
 
 export default function ElternActivities({ onLogout }) {
+  const { campId } = useCamp()
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -15,7 +17,7 @@ export default function ElternActivities({ onLogout }) {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await api.get('/activities/?camp_id=1', {
+      const response = await api.get(`/activities/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setActivities(Array.isArray(response.data) ? response.data : [])

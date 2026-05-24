@@ -1,9 +1,11 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import StaffLayout from '../components/StaffLayout'
 import PocketMoneyManagement from '../components/PocketMoneyManagement'
 
 export default function StaffPocketMoney({ onLogout }) {
+  const { campId } = useCamp()
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -16,7 +18,7 @@ export default function StaffPocketMoney({ onLogout }) {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await api.get('/finances/statistics/?camp_id=1', {
+      const response = await api.get(`/finances/statistics/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setStats(response.data)
@@ -72,7 +74,7 @@ export default function StaffPocketMoney({ onLogout }) {
         )}
 
         {/* Pocket Money Management */}
-        <PocketMoneyManagement campId={1} />
+        <PocketMoneyManagement campId={campId} />
       </div>
     </StaffLayout>
   )

@@ -1,8 +1,10 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import AdminLayout from '../components/AdminLayout'
 
 export default function AdminOverview({ onLogout }) {
+  const { campId } = useCamp()
   const [participants, setParticipants] = useState([])
   const [checkInStatus, setCheckInStatus] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -17,7 +19,7 @@ export default function AdminOverview({ onLogout }) {
       setLoading(true)
       const token = localStorage.getItem('token')
 
-      const partResponse = await api.get('/participants/?camp_id=1', {
+      const partResponse = await api.get(`/participants/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setParticipants(Array.isArray(partResponse.data) ? partResponse.data : [])

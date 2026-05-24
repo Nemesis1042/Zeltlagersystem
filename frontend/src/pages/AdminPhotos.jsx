@@ -1,9 +1,11 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import AdminLayout from '../components/AdminLayout'
 import PhotoUpload from '../components/PhotoUpload'
 
 export default function AdminPhotos({ onLogout }) {
+  const { campId } = useCamp()
   const [photos, setPhotos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -18,7 +20,7 @@ export default function AdminPhotos({ onLogout }) {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await api.get('/photos/?camp_id=1', {
+      const response = await api.get(`/photos/?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setPhotos(Array.isArray(response.data) ? response.data : [])
@@ -129,7 +131,7 @@ export default function AdminPhotos({ onLogout }) {
         {/* Photo Upload Component */}
         <div className="mt-8">
           <h3 className="text-2xl font-bold text-navy mb-6">📤 Fotos hochladen</h3>
-          <PhotoUpload campId={1} onUploadSuccess={loadPhotos} />
+          <PhotoUpload campId={campId} onUploadSuccess={loadPhotos} />
         </div>
 
         {/* Filter Tabs */}
