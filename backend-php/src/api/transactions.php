@@ -9,21 +9,21 @@ try {
     // GET /api/transactions/
     if ($request_uri === '/api/transactions/' && $method === 'GET') {
         $camp_id = $_GET['camp_id'] ?? 1;
-        $query = "SELECT t.id, t.account_id, t.product_id, t.amount, t.type, t.description, t.created_at FROM transactions t
-                  JOIN pocket_money_accounts pa ON t.account_id = pa.id
-                  WHERE pa.camp_id = ?
-                  ORDER BY t.created_at DESC";
-        $result = $db->execute($query, [$camp_id]);
-        echo json_encode($result ?: []);
+        $query = "SELECT t.id, t.user_id, t.total_amount, t.transaction_type, t.created_at FROM transactions t
+                  WHERE 1=1
+                  ORDER BY t.created_at DESC LIMIT 100";
+        $stmt = $db->execute($query, []);
+        echo json_encode($stmt->fetchAll() ?: []);
         exit;
     }
 
     // GET /api/transactions/{id}
     if (preg_match('/^\/api\/transactions\/(\d+)/', $request_uri, $matches) && $method === 'GET') {
         $transaction_id = $matches[1];
-        $query = "SELECT id, account_id, product_id, amount, type, description, created_at FROM transactions WHERE id = ?";
-        $result = $db->execute($query, [$transaction_id]);
-        echo json_encode($result ? $result[0] : null);
+        $query = "SELECT id, user_id, total_amount, transaction_type, created_at FROM transactions WHERE id = ?";
+        $stmt = $db->execute($query, [$transaction_id]);
+        $result = $stmt->fetch();
+        echo json_encode($result ?: null);
         exit;
     }
 

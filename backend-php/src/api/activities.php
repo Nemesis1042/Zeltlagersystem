@@ -10,8 +10,8 @@ try {
     if ($request_uri === '/api/activities/' && $method === 'GET') {
         $camp_id = $_GET['camp_id'] ?? 1;
         $query = "SELECT id, camp_id, name, beschreibung, datum, uhrzeit, ort FROM activities WHERE camp_id = ? ORDER BY datum";
-        $result = $db->execute($query, [$camp_id]);
-        echo json_encode($result ?: []);
+        $stmt = $db->execute($query, [$camp_id]);
+        echo json_encode($stmt->fetchAll() ?: []);
         exit;
     }
 
@@ -19,8 +19,9 @@ try {
     if (preg_match('/^\/api\/activities\/(\d+)/', $request_uri, $matches) && $method === 'GET') {
         $activity_id = $matches[1];
         $query = "SELECT id, camp_id, name, beschreibung, datum, uhrzeit, ort FROM activities WHERE id = ?";
-        $result = $db->execute($query, [$activity_id]);
-        echo json_encode($result ? $result[0] : null);
+        $stmt = $db->execute($query, [$activity_id]);
+        $result = $stmt->fetch();
+        echo json_encode($result ?: null);
         exit;
     }
 

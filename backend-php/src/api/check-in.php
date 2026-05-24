@@ -12,10 +12,11 @@ try {
         $camp_id = $_GET['camp_id'] ?? 1;
 
         $query = "SELECT id, participant_id, camp_id, checked_in, checked_in_at FROM check_ins WHERE participant_id = ? AND camp_id = ?";
-        $result = $db->execute($query, [$participant_id, $camp_id]);
+        $stmt = $db->execute($query, [$participant_id, $camp_id]);
+        $result = $stmt->fetch();
 
-        if ($result && count($result) > 0) {
-            echo json_encode($result[0]);
+        if ($result) {
+            echo json_encode($result);
         } else {
             echo json_encode(['id' => null, 'participant_id' => $participant_id, 'camp_id' => $camp_id, 'checked_in' => 0, 'checked_in_at' => null]);
         }
@@ -26,8 +27,8 @@ try {
     if ($request_uri === '/api/check-in/' && $method === 'GET') {
         $camp_id = $_GET['camp_id'] ?? 1;
         $query = "SELECT id, participant_id, camp_id, checked_in, checked_in_at FROM check_ins WHERE camp_id = ?";
-        $result = $db->execute($query, [$camp_id]);
-        echo json_encode($result ?: []);
+        $stmt = $db->execute($query, [$camp_id]);
+        echo json_encode($stmt->fetchAll() ?: []);
         exit;
     }
 

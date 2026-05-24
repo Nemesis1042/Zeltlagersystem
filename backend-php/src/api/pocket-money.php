@@ -66,10 +66,13 @@ if ($method === 'POST' && preg_match('/^\/api\/pocket-money\/sale\/$/', $path)) 
         [$price, $account_id]
     );
     
-    // Record transaction
+    // Record transaction (note: transactions table stores user_id from pocket_money_accounts)
+    $stmt = $db->execute('SELECT participant_id FROM pocket_money_accounts WHERE id = ?', [$account_id]);
+    $pm_account = $stmt->fetch();
+
     $db->execute(
-        'INSERT INTO transactions (account_id, product_id, amount, type, description) VALUES (?, ?, ?, ?, ?)',
-        [$account_id, $product_id, $price, 'sale', 'Product sale']
+        'INSERT INTO transactions (user_id, total_amount, transaction_type) VALUES (?, ?, ?)',
+        [$pm_account['participant_id'], $price, 'purchase']
     );
     
     echo json_encode([

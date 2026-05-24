@@ -16,9 +16,10 @@ if ($request_uri === '/api/auth/login' && $method === 'POST') {
     }
 
     $query = "SELECT id, email, password, vorname, nachname, role FROM users WHERE email = ?";
-    $result = $db->execute($query, [$data['email']]);
+    $stmt = $db->execute($query, [$data['email']]);
+    $result = $stmt->fetch();
 
-    if (!$result || !password_verify($data['password'], $result[0]['password'])) {
+    if (!$result || !password_verify($data['password'], $result['password'])) {
         http_response_code(401);
         echo json_encode(['error' => 'Invalid credentials']);
         exit;
@@ -92,7 +93,8 @@ if ($request_uri === '/api/auth/me' && $method === 'GET') {
     }
 
     $query = "SELECT id, email, vorname, nachname, role FROM users WHERE id = ?";
-    $result = $db->execute($query, [$decoded['id']]);
+    $stmt = $db->execute($query, [$decoded['id']]);
+    $result = $stmt->fetch();
 
     if (!$result) {
         http_response_code(404);
@@ -100,7 +102,7 @@ if ($request_uri === '/api/auth/me' && $method === 'GET') {
         exit;
     }
 
-    echo json_encode($result[0]);
+    echo json_encode($result);
     exit;
 }
 

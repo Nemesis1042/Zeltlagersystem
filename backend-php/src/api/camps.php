@@ -9,8 +9,8 @@ try {
     // GET /api/camps/
     if ($request_uri === '/api/camps/' && $method === 'GET') {
         $query = "SELECT id, name, date_start, date_end, active FROM camps";
-        $result = $db->execute($query, []);
-        echo json_encode($result ?: []);
+        $stmt = $db->execute($query, []);
+        echo json_encode($stmt->fetchAll() ?: []);
         exit;
     }
 
@@ -18,8 +18,9 @@ try {
     if (preg_match('/^\/api\/camps\/(\d+)/', $request_uri, $matches) && $method === 'GET') {
         $camp_id = $matches[1];
         $query = "SELECT id, name, date_start, date_end, active FROM camps WHERE id = ?";
-        $result = $db->execute($query, [$camp_id]);
-        echo json_encode($result ? $result[0] : null);
+        $stmt = $db->execute($query, [$camp_id]);
+        $result = $stmt->fetch();
+        echo json_encode($result ?: null);
         exit;
     }
 
