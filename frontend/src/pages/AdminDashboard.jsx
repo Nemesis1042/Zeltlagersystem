@@ -35,7 +35,7 @@ export default function AdminDashboard({ onLogout }) {
         const partResponse = await api.get('/participants/?camp_id=1', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
-        setParticipants(partResponse.data || [])
+        setParticipants(Array.isArray(partResponse.data) ? partResponse.data : [])
       } catch (err) {
         console.error('Error loading participants:', err)
       }
