@@ -35,7 +35,6 @@ case $CHOICE in
 
         # Backend Files - SRC (API handlers)
         echo -e "${YELLOW}  → API files...${NC}"
-        scp -r backend-php/src/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/src/ 2>/dev/null || mkdir -p /tmp/backend-src
         scp -r backend-php/src/ ionos:/www/htdocs/w01e9b9c/lagerbank.info/
 
         # Backend Files - CONFIG
