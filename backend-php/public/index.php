@@ -13,7 +13,8 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../src/Router.php';
 
-// Load repositories (UserRepository loaded by AuthService)
+// Load repositories
+require_once __DIR__ . '/../src/repositories/UserRepository.php';
 require_once __DIR__ . '/../src/repositories/ParticipantRepository.php';
 require_once __DIR__ . '/../src/repositories/TentRepository.php';
 require_once __DIR__ . '/../src/repositories/ActivityRepository.php';
@@ -49,6 +50,9 @@ $router->get('/', function() {
 
 // Authentication Routes
 require __DIR__ . '/../src/api/auth.php';
+
+// Users Routes
+require __DIR__ . '/../src/api/users.php';
 
 // Participants Routes
 require __DIR__ . '/../src/api/participants.php';
