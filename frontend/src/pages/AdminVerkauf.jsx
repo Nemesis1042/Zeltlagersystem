@@ -9,6 +9,7 @@ export default function AdminVerkauf({ onLogout }) {
   const [participantBalance, setParticipantBalance] = useState(0)
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState('')
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const [cameraActive, setCameraActive] = useState(false)
@@ -24,6 +25,7 @@ export default function AdminVerkauf({ onLogout }) {
       setLoading(false)
     } catch (err) {
       setMessage('Fehler beim Laden der Produkte')
+      setMessageType('error')
       setLoading(false)
     }
   }
@@ -38,6 +40,7 @@ export default function AdminVerkauf({ onLogout }) {
       }
     } catch (err) {
       setMessage('Kamera-Zugriff verweigert')
+      setMessageType('error')
     }
   }
 
@@ -80,15 +83,18 @@ export default function AdminVerkauf({ onLogout }) {
       const response = await api.get(`/pocket-money/participant/${participantId}/?camp_id=1`)
       setScannedParticipant(participantId)
       setParticipantBalance(response.data.balance || 0)
-      setMessage(`✓ Teilnehmer ${participantId} gescannt`)
+      setMessage(`Teilnehmer ${participantId} gescannt`)
+      setMessageType('success')
     } catch (err) {
       setMessage('Teilnehmer nicht gefunden')
+      setMessageType('error')
     }
   }
 
   const handleSale = async (product) => {
     if (!scannedParticipant) {
       setMessage('Bitte zuerst Teilnehmer scannen')
+      setMessageType('error')
       return
     }
 
@@ -100,92 +106,124 @@ export default function AdminVerkauf({ onLogout }) {
       })
 
       setParticipantBalance(response.data.new_balance)
-      setMessage(`✓ ${product.name} verkauft! Neues Guthaben: €${response.data.new_balance.toFixed(2)}`)
+      setMessage(`${product.name} verkauft!`)
+      setMessageType('success')
     } catch (err) {
-      setMessage('Verkauf fehlgeschlagen: ' + (err.response?.data?.error || 'Fehler'))
+      setMessage('Verkauf fehlgeschlagen')
+      setMessageType('error')
     }
   }
 
   return (
     <AdminLayout onLogout={onLogout}>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold text-navy mb-2">🛒 Verkauf</h2>
-          <p className="text-slate-600">Produkte an Teilnehmer verkaufen</p>
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h2 className="text-4xl font-bold text-[#0B132B] mb-2">Verkauf</h2>
+          <p className="text-slate-600 text-lg">QR-Code scannen und Produkte verkaufen</p>
         </div>
 
+        {/* Status Message */}
         {message && (
-          <div className={`p-4 rounded-lg text-white ${message.includes('✓') ? 'bg-green-600' : 'bg-red-600'}`}>
+          <div className={`mb-6 p-4 rounded-xl font-medium transition-all ${
+            messageType === 'success'
+              ? 'bg-green-50 text-green-700 border border-green-200'
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}>
             {message}
           </div>
         )}
 
-        {/* QR Scanner */}
-        <div className="card">
-          <h3 className="text-xl font-bold text-navy mb-4">📱 Teilnehmer scannen</h3>
-          
-          {!cameraActive ? (
-            <button
-              onClick={startCamera}
-              className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
-            >
-              📷 Kamera starten
-            </button>
-          ) : (
-            <div className="space-y-4">
-              <video ref={videoRef} className="w-full rounded-lg" />
-              <canvas ref={canvasRef} style={{ display: 'none' }} />
-              <button
-                onClick={stopCamera}
-                className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold"
-              >
-                ✕ Kamera stoppen
-              </button>
-            </div>
-          )}
+        {/* Main Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Scanner Section */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden p-6">
+              <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Scanner</div>
 
-          {scannedParticipant && (
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-lg font-bold text-green-700">TN #{scannedParticipant}</p>
-              <p className="text-2xl font-bold text-navy">€{participantBalance.toFixed(2)}</p>
-              <button
-                onClick={() => {
-                  setScannedParticipant(null)
-                  setParticipantBalance(0)
-                  setMessage('')
-                }}
-                className="mt-2 px-4 py-2 bg-slate-300 text-slate-700 rounded hover:bg-slate-400"
-              >
-                Andere scannen
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Products */}
-        {scannedParticipant && (
-          <div className="card">
-            <h3 className="text-xl font-bold text-navy mb-4">🛍️ Produkte</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {products.map(product => (
+              {!cameraActive ? (
                 <button
-                  key={product.id}
-                  onClick={() => handleSale(product)}
-                  disabled={participantBalance < product.price}
-                  className={`p-4 rounded-lg font-bold text-center transition-colors ${
-                    participantBalance < product.price
-                      ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                      : 'bg-gold text-navy hover:bg-yellow-500'
-                  }`}
+                  onClick={startCamera}
+                  className="w-full px-6 py-4 bg-[#0B132B] text-white rounded-xl hover:bg-[#1c2541] font-bold transition-colors active:scale-95 text-lg"
                 >
-                  <div className="text-2xl mb-2">{product.name.split(' ')[0]}</div>
-                  <div>{product.name.split(' ').slice(1).join(' ')}</div>
-                  <div className="text-lg mt-2">€{product.price.toFixed(2)}</div>
+                  📷 Kamera starten
                 </button>
-              ))}
+              ) : (
+                <div className="space-y-4">
+                  <video ref={videoRef} className="w-full rounded-xl bg-black" autoPlay playsInline />
+                  <canvas ref={canvasRef} style={{ display: 'none' }} />
+                  <button
+                    onClick={stopCamera}
+                    className="w-full px-6 py-3 bg-slate-600 text-white rounded-xl hover:bg-slate-700 font-bold transition-colors active:scale-95"
+                  >
+                    ✕ Beenden
+                  </button>
+                </div>
+              )}
+
+              {scannedParticipant && (
+                <div className="mt-6 p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl">
+                  <p className="text-xs font-bold text-green-600 uppercase tracking-wider">Gescannter Teilnehmer</p>
+                  <p className="text-3xl font-bold text-[#0B132B] mt-2">TN #{scannedParticipant}</p>
+                  <p className="text-sm text-slate-600 mt-1">Guthaben</p>
+                  <p className="text-4xl font-bold text-[#C5A059] mt-1">€{participantBalance.toFixed(2)}</p>
+                  <button
+                    onClick={() => {
+                      setScannedParticipant(null)
+                      setParticipantBalance(0)
+                      setMessage('')
+                      setCameraActive(false)
+                    }}
+                    className="mt-6 w-full px-4 py-2 bg-[#0B132B] text-white rounded-lg font-semibold hover:bg-[#1c2541] transition-colors text-sm"
+                  >
+                    Anderen scannen
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        )}
+
+          {/* Products Section */}
+          <div className="lg:col-span-2">
+            {scannedParticipant ? (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Verfügbare Produkte</div>
+                    <h3 className="text-2xl font-bold text-[#0B132B] mt-1">Wählen Sie ein Produkt</h3>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {products.map(product => (
+                    <button
+                      key={product.id}
+                      onClick={() => handleSale(product)}
+                      disabled={participantBalance < product.price}
+                      className={`group p-4 rounded-xl transition-all transform active:scale-95 font-bold text-center border-2 ${
+                        participantBalance < product.price
+                          ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-50'
+                          : 'bg-gradient-to-br from-[#C5A059] to-[#b38e4a] text-white border-[#C5A059] hover:shadow-lg hover:-translate-y-1'
+                      }`}
+                    >
+                      <div className="text-3xl mb-2">📦</div>
+                      <div className="text-sm font-semibold leading-tight">{product.name}</div>
+                      <div className="mt-3 pt-3 border-t border-white border-opacity-30">
+                        <div className="text-2xl font-bold">€{product.price.toFixed(2)}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-md border border-slate-100 p-12 text-center">
+                <div className="text-6xl mb-4">📱</div>
+                <h3 className="text-2xl font-bold text-slate-700 mb-2">Scanner aktivieren</h3>
+                <p className="text-slate-500">Starten Sie oben den Scanner, um einen Teilnehmer zu scannen und Produkte anzuzeigen</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </AdminLayout>
   )
