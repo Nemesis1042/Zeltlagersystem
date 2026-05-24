@@ -1,0 +1,55 @@
+#!/bin/bash
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+echo -e "${BLUE}🚀 BULA2026 → IONOS Deploy${NC}\n"
+
+# Check builds
+if [ ! -d "frontend/dist-admin" ] || [ ! -d "frontend/dist-registration" ]; then
+    echo -e "${RED}✗ Apps nicht gebaut!${NC}"
+    echo "Starten: npm run build:admin && npm run build:registration"
+    exit 1
+fi
+
+# Ask what to deploy
+echo -e "${BLUE}Was deployen?${NC}"
+echo "1) Admin + Backend"
+echo "2) Registration"
+echo "3) Beides"
+read -p "Wahl (1-3): " CHOICE
+
+echo -e "\n${YELLOW}Uploade...${NC}\n"
+
+case $CHOICE in
+    1|3)
+        echo -e "${BLUE}📤 Backend + Admin${NC}"
+        scp -r backend-php/src ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/
+        scp -r backend-php/config ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/
+        scp backend-php/public/index.php ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/public/
+        scp -r frontend/dist-admin/assets ionos:/www/htdocs/w01e9b9c/lagerbank.info/
+        scp frontend/dist-admin/index.html ionos:/www/htdocs/w01e9b9c/lagerbank.info/
+        scp .htaccess ionos:/www/htdocs/w01e9b9c/lagerbank.info/
+        echo -e "${GREEN}✓ Admin + Backend OK${NC}"
+        ;;
+esac
+
+case $CHOICE in
+    2|3)
+        echo -e "${BLUE}📤 Registration${NC}"
+        scp -r frontend/dist-registration/assets ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/
+        scp frontend/dist-registration/registration.html ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/index.html
+        scp .htaccess ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/
+        echo -e "${GREEN}✓ Registration OK${NC}"
+        ;;
+esac
+
+echo -e "\n${GREEN}✓ FERTIG!${NC}"
+echo -e "\n${YELLOW}Noch zu tun:${NC}"
+echo "1. config.php mit DB-Daten füllen"
+echo "2. schema.sql importieren"
+echo "3. https://lagerbank.info testen"
