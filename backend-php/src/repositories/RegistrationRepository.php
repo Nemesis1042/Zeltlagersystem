@@ -8,20 +8,17 @@ class RegistrationRepository {
     }
 
     public function getById($id) {
-        $stmt = $this->db->prepare("
-            SELECT * FROM registrations WHERE id = ?
-        ");
-        $result = $this->db->execute($stmt, [$id]);
-        return $result[0] ?? null;
+        $query = "SELECT * FROM registrations WHERE id = ?";
+        return $this->db->execute($query, [$id])->fetch();
     }
 
     public function getByCampId($camp_id) {
-        $stmt = $this->db->prepare("
+        $query = "
             SELECT * FROM registrations
             WHERE camp_id = ?
             ORDER BY tn_familienname, tn_vorname
-        ");
-        return $this->db->execute($stmt, [$camp_id]);
+        ";
+        return $this->db->execute($query, [$camp_id])->fetchAll();
     }
 
     public function create($camp_id, $data, $user_id = null) {
@@ -53,11 +50,11 @@ class RegistrationRepository {
         $values[] = date('Y-m-d H:i:s');
 
         $placeholders = implode(',', array_fill(0, count($fields), '?'));
-        $stmt = $this->db->prepare("
+        $query = "
             INSERT INTO registrations (" . implode(',', $fields) . ")
             VALUES ($placeholders)
-        ");
-        $this->db->execute($stmt, $values);
+        ";
+        $this->db->execute($query, $values);
         return $this->db->lastInsertId();
     }
 
@@ -90,20 +87,18 @@ class RegistrationRepository {
         if (empty($updates)) return false;
 
         $params[] = $id;
-        $stmt = $this->db->prepare("UPDATE registrations SET " . implode(", ", $updates) . " WHERE id = ?");
-        return $this->db->execute($stmt, $params);
+        $query = "UPDATE registrations SET " . implode(", ", $updates) . " WHERE id = ?";
+        return $this->db->execute($query, $params);
     }
 
     public function delete($id) {
-        $stmt = $this->db->prepare("DELETE FROM registrations WHERE id = ?");
-        return $this->db->execute($stmt, [$id]);
+        $query = "DELETE FROM registrations WHERE id = ?";
+        return $this->db->execute($query, [$id]);
     }
 
     public function getOrtByPlz($plz) {
-        $stmt = $this->db->prepare("
-            SELECT DISTINCT tn_ort FROM registrations WHERE tn_plz = ? LIMIT 1
-        ");
-        $result = $this->db->execute($stmt, [$plz]);
-        return $result[0]['tn_ort'] ?? null;
+        $query = "SELECT DISTINCT tn_ort FROM registrations WHERE tn_plz = ? LIMIT 1";
+        $result = $this->db->execute($query, [$plz])->fetch();
+        return $result['tn_ort'] ?? null;
     }
 }
