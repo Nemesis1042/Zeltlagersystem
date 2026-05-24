@@ -1,9 +1,10 @@
 <?php
 
 $registrationRepo = new RegistrationRepository();
+$userRepo = new UserRepository();
 
 // POST /registrations/ - Neue Anmeldung erstellen
-$router->post('/registrations/', function() use ($registrationRepo) {
+$router->post('/registrations/', function() use ($registrationRepo, $userRepo) {
     try {
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -17,10 +18,37 @@ $router->post('/registrations/', function() use ($registrationRepo) {
             return json_encode(['error' => 'Sorgeberechtigte Daten erforderlich']);
         }
 
+        // Check if user wants to create login account
+        $create_account = $data['create_account'] ?? false;
+        $user_id = null;
+
+        if ($create_account) {
+            if (!isset($data['email']) || !isset($data['password'])) {
+                http_response_code(400);
+                return json_encode(['error' => 'Email und Passwort erforderlich für Login-Account']);
+            }
+
+            // Check if email already exists
+            $existing = $userRepo->findByEmail($data['email']);
+            if ($existing) {
+                http_response_code(400);
+                return json_encode(['error' => 'Diese Email-Adresse existiert bereits']);
+            }
+
+            // Create user account
+            $user_id = $userRepo->create([
+                'email' => $data['email'],
+                'password_hash' => password_hash($data['password'], PASSWORD_BCRYPT),
+                'vorname' => $data['tn_vorname'],
+                'nachname' => $data['tn_familienname'],
+                'role' => 'eltern'
+            ]);
+        }
+
         // Default camp_id = 1 (hauptcamp)
         $camp_id = $data['camp_id'] ?? 1;
 
-        $registration_id = $registrationRepo->create($camp_id, $data);
+        $registration_id = $registrationRepo->create($camp_id, $data, $user_id);
 
         if (!$registration_id) {
             http_response_code(500);
@@ -31,6 +59,7 @@ $router->post('/registrations/', function() use ($registrationRepo) {
         return json_encode([
             'success' => true,
             'registration_id' => $registration_id,
+            'user_id' => $user_id,
             'message' => 'Anmeldung erfolgreich erstellt'
         ]);
     } catch (Exception $e) {

@@ -7,6 +7,12 @@ export default function RegistrationForm() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [formData, setFormData] = useState({
+    // Login Account
+    create_account: false,
+    email: '',
+    password: '',
+    password_confirm: '',
+
     // Teilnehmer
     tn_familienname: '',
     tn_vorname: '',
@@ -77,13 +83,32 @@ export default function RegistrationForm() {
     setError('')
 
     try {
+      // Validate passwords if creating account
+      if (formData.create_account) {
+        if (!formData.email || !formData.password) {
+          setError('Email und Passwort erforderlich')
+          setLoading(false)
+          return
+        }
+        if (formData.password !== formData.password_confirm) {
+          setError('Passwörter stimmen nicht überein')
+          setLoading(false)
+          return
+        }
+        if (formData.password.length < 6) {
+          setError('Passwort muss mindestens 6 Zeichen lang sein')
+          setLoading(false)
+          return
+        }
+      }
+
       const response = await axios.post('/api/registrations/', formData)
       setSuccess(true)
       setTimeout(() => {
         window.location.href = '/login'
       }, 2000)
     } catch (err) {
-      setError(err.response?.data?.detail || 'Anmeldung fehlgeschlagen')
+      setError(err.response?.data?.error || err.response?.data?.detail || 'Anmeldung fehlgeschlagen')
     } finally {
       setLoading(false)
     }
@@ -133,6 +158,58 @@ export default function RegistrationForm() {
           {/* Step 1: Teilnehmer */}
           {step === 1 && (
             <div className="space-y-4">
+              {/* Login Account Section */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <label className="flex items-center gap-3 cursor-pointer mb-4">
+                  <input
+                    type="checkbox"
+                    name="create_account"
+                    checked={formData.create_account}
+                    onChange={handleChange}
+                    className="w-4 h-4"
+                  />
+                  <span className="font-semibold text-navy">Ich möchte einen Login-Account erstellen</span>
+                </label>
+
+                {formData.create_account && (
+                  <div className="space-y-3 ml-7">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Email *</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded"
+                        placeholder="your@email.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Passwort *</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded"
+                        placeholder="Mindestens 6 Zeichen"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Passwort wiederholen *</label>
+                      <input
+                        type="password"
+                        name="password_confirm"
+                        value={formData.password_confirm}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded"
+                        placeholder="Passwort bestätigen"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <h2 className="text-xl font-semibold mb-4">Persönliche Daten Teilnehmer</h2>
 
               <div className="grid grid-cols-2 gap-4">
