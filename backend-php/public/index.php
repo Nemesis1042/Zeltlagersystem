@@ -14,6 +14,11 @@ $routes = [
     'activities' => __DIR__ . '/../src/api/activities.php',
     'tents' => __DIR__ . '/../src/api/tents.php',
     'camps' => __DIR__ . '/../src/api/camps.php',
+    'products' => __DIR__ . '/../src/api/products.php',
+    'pocket-money' => __DIR__ . '/../src/api/pocket-money.php',
+    'users' => __DIR__ . '/../src/api/users.php',
+    'check-in' => __DIR__ . '/../src/api/check-in.php',
+    'auth' => __DIR__ . '/../src/api/auth.php',
 ];
 
 // Health check

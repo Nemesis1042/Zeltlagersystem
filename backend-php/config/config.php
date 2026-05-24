@@ -20,3 +20,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
+
+// JWT Helper Functions
+function jwt_encode($payload) {
+    $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT']);
+    $payload = json_encode($payload);
+
+    $header = rtrim(strtr(base64_encode($header), '+/', '-_'), '=');
+    $payload = rtrim(strtr(base64_encode($payload), '+/', '-_'), '=');
+    $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', "$header.$payload", JWT_SECRET, true)), '+/', '-_'), '=');
+
+    return "$header.$payload.$signature";
+}
+
+function jwt_decode($token) {
+    $parts = explode('.', $token);
+    if (count($parts) !== 3) return null;
+
+    list($header, $payload, $signature) = $parts;
+
+    $expected_signature = rtrim(strtr(base64_encode(hash_hmac('sha256', "$header.$payload", JWT_SECRET, true)), '+/', '-_'), '=');
+    if (!hash_equals($signature, $expected_signature)) return null;
+
+    return json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
+}

@@ -1,67 +1,27 @@
 <?php
+header('Content-Type: application/json');
 
+$db = Database::getInstance();
+$method = $_SERVER['REQUEST_METHOD'];
+$request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-$participantRepo = new ParticipantRepository();
+// GET /api/check-in/status/{id}
+if (preg_match('/^\/api\/check-in\/status\/(\d+)/', $request_uri, $matches) && $method === 'GET') {
+    $participant_id = $matches[1];
+    $query = "SELECT id, participant_id, camp_id, checked_in, checked_in_at FROM check_ins WHERE participant_id = ? LIMIT 1";
+    $result = $db->execute($query, [$participant_id]);
+    echo json_encode($result ? $result[0] : null);
+    exit;
+}
 
-// GET /check-in/status/{camp_id}
-$router->get('/check-in/status/{camp_id}', function($camp_id) use ($participantRepo) {
-    $status = $participantRepo->getCheckInStatus($camp_id);
-    return json_encode($status);
-});
+// GET /api/check-in/
+if ($request_uri === '/api/check-in/' && $method === 'GET') {
+    $camp_id = $_GET['camp_id'] ?? 1;
+    $query = "SELECT id, participant_id, camp_id, checked_in, checked_in_at FROM check_ins WHERE camp_id = ?";
+    $result = $db->execute($query, [$camp_id]);
+    echo json_encode($result ?: []);
+    exit;
+}
 
-// GET /check-in/list/{camp_id}
-$router->get('/check-in/list/{camp_id}', function($camp_id) use ($participantRepo) {
-    $list = $participantRepo->getCheckInList($camp_id);
-    return json_encode($list);
-});
-
-// POST /check-in/
-$router->post('/check-in/', function() use ($participantRepo) {
-    global $currentUser;
-
-    $data = json_decode(file_get_contents('php://input'), true);
-    $participant_id = $data['participant_id'] ?? null;
-
-    if (!$participant_id) {
-        http_response_code(400);
-        return json_encode(['error' => 'Missing participant_id']);
-    }
-
-    $participant = $participantRepo->getById($participant_id);
-    if (!$participant) {
-        http_response_code(404);
-        return json_encode(['error' => 'Participant not found']);
-    }
-
-    $checked_in_by_id = $currentUser['id'] ?? null;
-    if (!$participantRepo->checkIn($participant_id, $checked_in_by_id)) {
-        http_response_code(500);
-        return json_encode(['error' => 'Check-in failed']);
-    }
-
-    return json_encode([
-        'success' => true,
-        'message' => 'Check-in successful',
-        'participant' => $participantRepo->getById($participant_id)
-    ]);
-});
-
-// PATCH /check-in/{id}
-$router->patch('/check-in/{id}', function($id) use ($participantRepo) {
-    global $currentUser;
-
-    $data = json_decode(file_get_contents('php://input'), true);
-    $status = $data['status'] ?? null;
-
-    if (!$status) {
-        http_response_code(400);
-        return json_encode(['error' => 'Missing status']);
-    }
-
-    if (!$participantRepo->update($id, ['status' => $status])) {
-        http_response_code(400);
-        return json_encode(['error' => 'Failed to update status']);
-    }
-
-    return json_encode(['success' => true, 'participant' => $participantRepo->getById($id)]);
-});
+http_response_code(404);
+echo json_encode(['error' => 'Not found']);
