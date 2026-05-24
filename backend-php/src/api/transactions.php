@@ -9,15 +9,22 @@ try {
     // GET /api/transactions/
     if ($path === '/api/transactions/' && $method === 'GET') {
         $stmt = $pdo->query("SELECT id, user_id, total_amount, transaction_type, created_at FROM transactions ORDER BY created_at DESC LIMIT 100");
-        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
         exit;
     }
 
     // GET /api/transactions/{id}
     if (preg_match('/^\/api\/transactions\/(\d+)/', $path, $m) && $method === 'GET') {
+        $transaction_id = (int)$m[1];
         $stmt = $pdo->prepare("SELECT id, user_id, total_amount, transaction_type, created_at FROM transactions WHERE id = ?");
-        $stmt->execute([$m[1]]);
-        echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
+        $stmt->execute([$transaction_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$result) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Transaction not found']);
+            exit;
+        }
+        echo json_encode($result);
         exit;
     }
 

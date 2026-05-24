@@ -8,8 +8,8 @@ try {
 
     // GET /api/pocket-money/participant/{id}
     if (preg_match('/^\/api\/pocket-money\/participant\/(\d+)/', $path, $m) && $method === 'GET') {
-        $participant_id = $m[1];
-        $camp_id = $_GET['camp_id'] ?? 1;
+        $participant_id = (int)$m[1];
+        $camp_id = (int)($_GET['camp_id'] ?? 1);
 
         $stmt = $pdo->prepare("SELECT id, balance FROM pocket_money_accounts WHERE participant_id = ? AND camp_id = ?");
         $stmt->execute([$participant_id, $camp_id]);
@@ -29,15 +29,18 @@ try {
     if ($path === '/api/pocket-money/sale/' && $method === 'POST') {
         $input = json_decode(file_get_contents('php://input'), true);
 
-        if (!isset($input['account_id']) || !isset($input['product_id']) || !isset($input['amount'])) {
+        if (!isset($input['account_id']) || !isset($input['product_id'])) {
             http_response_code(400);
-            echo json_encode(['error' => 'Missing required fields']);
+            echo json_encode(['error' => 'account_id and product_id required']);
             exit;
         }
 
+        $account_id = (int)$input['account_id'];
+        $product_id = (int)$input['product_id'];
+
         // Get product price
         $stmt = $pdo->prepare("SELECT price FROM products WHERE id = ?");
-        $stmt->execute([$input['product_id']]);
+        $stmt->execute([$product_id]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$product) {
@@ -48,7 +51,7 @@ try {
 
         // Check balance
         $stmt = $pdo->prepare("SELECT balance FROM pocket_money_accounts WHERE id = ?");
-        $stmt->execute([$input['account_id']]);
+        $stmt->execute([$account_id]);
         $account = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$account || $account['balance'] < $product['price']) {
@@ -59,7 +62,7 @@ try {
 
         // Deduct balance
         $stmt = $pdo->prepare("UPDATE pocket_money_accounts SET balance = balance - ? WHERE id = ?");
-        $stmt->execute([$product['price'], $input['account_id']]);
+        $stmt->execute([$product['price'], $account_id]);
 
         echo json_encode([
             'success' => true,
