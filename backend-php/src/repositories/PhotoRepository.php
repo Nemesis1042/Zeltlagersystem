@@ -8,44 +8,43 @@ class PhotoRepository {
     }
 
     public function getByCampId($camp_id) {
-        $stmt = $this->db->prepare("
+        $query = "
             SELECT p.*, u.vorname as uploaded_by_vorname, u.nachname as uploaded_by_nachname
             FROM photos p
-            LEFT JOIN users u ON p.uploaded_by_id = u.id
+            LEFT JOIN auth_users u ON p.uploaded_by_id = u.id
             WHERE p.camp_id = ?
             ORDER BY p.created_at DESC
-        ");
-        return $this->db->execute($stmt, [$camp_id]);
+        ";
+        return $this->db->execute($query, [$camp_id])->fetchAll();
     }
 
     public function getReleasedPhotos($camp_id) {
-        $stmt = $this->db->prepare("
+        $query = "
             SELECT p.*, u.vorname as uploaded_by_vorname, u.nachname as uploaded_by_nachname
             FROM photos p
-            LEFT JOIN users u ON p.uploaded_by_id = u.id
+            LEFT JOIN auth_users u ON p.uploaded_by_id = u.id
             WHERE p.camp_id = ? AND p.released = true
             ORDER BY p.created_at DESC
-        ");
-        return $this->db->execute($stmt, [$camp_id]);
+        ";
+        return $this->db->execute($query, [$camp_id])->fetchAll();
     }
 
     public function getById($id) {
-        $stmt = $this->db->prepare("
+        $query = "
             SELECT p.*, u.vorname as uploaded_by_vorname, u.nachname as uploaded_by_nachname
             FROM photos p
-            LEFT JOIN users u ON p.uploaded_by_id = u.id
+            LEFT JOIN auth_users u ON p.uploaded_by_id = u.id
             WHERE p.id = ?
-        ");
-        $result = $this->db->execute($stmt, [$id]);
-        return $result[0] ?? null;
+        ";
+        return $this->db->execute($query, [$id])->fetch();
     }
 
     public function create($camp_id, $filename, $description = '', $uploaded_by_id = null) {
-        $stmt = $this->db->prepare("
+        $query = "
             INSERT INTO photos (camp_id, filename, description, uploaded_by_id, released, created_at)
             VALUES (?, ?, ?, ?, false, NOW())
-        ");
-        $this->db->execute($stmt, [$camp_id, $filename, $description, $uploaded_by_id]);
+        ";
+        $this->db->execute($query, [$camp_id, $filename, $description, $uploaded_by_id]);
         return $this->db->lastInsertId();
     }
 
@@ -64,12 +63,11 @@ class PhotoRepository {
         if (empty($updates)) return false;
 
         $params[] = $id;
-        $stmt = $this->db->prepare("UPDATE photos SET " . implode(", ", $updates) . " WHERE id = ?");
-        return $this->db->execute($stmt, $params);
+        $query = "UPDATE photos SET " . implode(", ", $updates) . " WHERE id = ?";
+        return $this->db->execute($query, $params);
     }
 
     public function delete($id) {
-        // Get filename to delete file
         $photo = $this->getById($id);
         if ($photo) {
             $filepath = __DIR__ . '/../../public/uploads/' . $photo['filename'];
@@ -78,12 +76,12 @@ class PhotoRepository {
             }
         }
 
-        $stmt = $this->db->prepare("DELETE FROM photos WHERE id = ?");
-        return $this->db->execute($stmt, [$id]);
+        $query = "DELETE FROM photos WHERE id = ?";
+        return $this->db->execute($query, [$id]);
     }
 
     public function release($id, $released = true) {
-        $stmt = $this->db->prepare("UPDATE photos SET released = ? WHERE id = ?");
-        return $this->db->execute($stmt, [$released ? 1 : 0, $id]);
+        $query = "UPDATE photos SET released = ? WHERE id = ?";
+        return $this->db->execute($query, [$released ? 1 : 0, $id]);
     }
 }
