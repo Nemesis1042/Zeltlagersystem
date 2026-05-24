@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS participants (
     camp_id INT NOT NULL,
     vorname VARCHAR(100) NOT NULL,
     nachname VARCHAR(100) NOT NULL,
-    alter INT,
+    `alter` INT,
     geschlecht VARCHAR(20),
     kontakt_name VARCHAR(255),
     kontakt_email VARCHAR(255),
