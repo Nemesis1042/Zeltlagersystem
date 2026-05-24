@@ -4,6 +4,18 @@
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 
+-- Drop all existing tables (in correct order for foreign keys)
+DROP TABLE IF EXISTS transaction_items;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS pocket_money_accounts;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS check_ins;
+DROP TABLE IF EXISTS tents;
+DROP TABLE IF EXISTS activities;
+DROP TABLE IF EXISTS participants;
+DROP TABLE IF EXISTS camps;
+DROP TABLE IF EXISTS users;
+
 -- Users Table (Admins, Staff, Parents)
 CREATE TABLE IF NOT EXISTS users (
     id INT PRIMARY KEY AUTO_INCREMENT,
