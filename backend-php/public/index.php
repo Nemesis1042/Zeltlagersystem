@@ -21,6 +21,8 @@ require_once __DIR__ . '/../src/repositories/ActivityRepository.php';
 require_once __DIR__ . '/../src/repositories/RegistrationRepository.php';
 require_once __DIR__ . '/../src/repositories/PhotoRepository.php';
 require_once __DIR__ . '/../src/repositories/PocketMoneyRepository.php';
+require_once __DIR__ . '/../src/repositories/CampRepository.php';
+require_once __DIR__ . '/../src/repositories/TransactionRepository.php';
 
 // Load services
 require_once __DIR__ . '/../src/services/AuthService.php';
@@ -74,6 +76,12 @@ require __DIR__ . '/../src/api/photos.php';
 
 // Pocket Money Routes
 require __DIR__ . '/../src/api/pocket-money.php';
+
+// Camps Routes
+require __DIR__ . '/../src/api/camps.php';
+
+// Transactions Routes
+require __DIR__ . '/../src/api/transactions.php';
 
 // Dispatch Request
 $router->dispatch();
