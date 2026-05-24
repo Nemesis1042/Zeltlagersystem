@@ -83,11 +83,7 @@ $router->get('/pocket-money/accounts/{account_id}/transactions', function($accou
     $limit = $_GET['limit'] ?? 50;
     $transactions = $pocketMoneyRepo->getTransactions($account_id, $limit);
 
-    return json_encode([
-        'account_id' => $account_id,
-        'balance' => $account['balance'],
-        'transactions' => $transactions
-    ]);
+    return json_encode($transactions);
 });
 
 // GET /pocket-money/accounts/{account_id}
@@ -104,12 +100,6 @@ $router->get('/pocket-money/accounts/{account_id}', function($account_id) use ($
 
 // GET /pocket-money/camp/{camp_id}/balance
 $router->get('/pocket-money/camp/{camp_id}/balance', function($camp_id) use ($pocketMoneyRepo) {
-    $total = $pocketMoneyRepo->getCampTotalBalance($camp_id);
     $accounts = $pocketMoneyRepo->getAccountByCampId($camp_id);
-
-    return json_encode([
-        'camp_id' => $camp_id,
-        'total_balance' => $total,
-        'accounts_count' => count($accounts)
-    ]);
+    return json_encode($accounts);
 });
