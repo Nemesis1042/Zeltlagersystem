@@ -1,62 +1,171 @@
-# BULA2026 - Zeltlager-Verwaltungssystem
+# 🏕️ BULA2026 Zeltlagersystem
 
-Vollständiges Web-basiertes Verwaltungssystem für Jugend-Zeltlager mit 80 Teilnehmern und 16 Mitarbeitern.
+**Vollständiges Camp-Management-System mit Admin-, Staff- und Eltern-Dashboards**
 
-## 🎯 Top 6 Features (MVP)
+---
 
-1. **Anmeldungs-Website** - Online Formular mit 5 Steps, Unterschriften, PDF-Export
-2. **Check-In System** - Teilnehmer bei Anreise abhaken
-3. **Taschengeld + QR-Scanner PWA** - Transaktionen mit Offline-Mode
-4. **Teilnehmer-Übersicht** - Admin-Ansicht mit Gesundheit, Kontakte, Details
-5. **Zeltplatz-Zuordnung** - Drag & Drop TN zu Zelten, Betreuer zuweisen
-6. **Aktivitäten + Gruppen-Generator** - Smart-Rotation für faire Gruppeneinteilung
+## 📊 System Overview
 
-## 🛠️ Tech Stack
+### ✅ Features Implementiert
 
-- **Backend**: Python 3.11 + FastAPI + PostgreSQL
-- **Frontend**: React 18 + Vite + Tailwind CSS
-- **Auth**: JWT (python-jose)
-- **Container**: Docker + Docker Compose
+#### 🔐 Admin Dashboard (lagerbank.info)
+- **11 Seiten** für komplette Camp-Verwaltung
+  - Overview: Statistiken & Quick Actions
+  - Camps: CRUD-Operationen für Lager
+  - Participants: Teilnehmer-Management mit Suche & Filter
+  - Check-In: Ankunftsverwaltung mit Live-Progress
+  - Tents: Zeltplatz-Management & Zuordnung
+  - Activities: Aktivitäten mit Auto-Gruppen-Generator
+  - Photos: Foto-Galerie mit Release-Control
+  - Finances: Transaktionsmanagement & Statistiken
+  - Reports: Report-Generierung (CSV, PDF)
+  - Administration: System-Settings & Verwaltung
+  - Permissions: Rollen & Berechtigungen
 
-## 🚀 Quick Start
+#### 👨‍💼 Staff/MA Dashboard (lagerbank.info/staff)
+- **5 Seiten** für Betreuer
+  - Overview: Quick Stats & Check-In Progress
+  - Participants: Teilnehmerliste mit Allergien
+  - Check-In: Check-In Management
+  - Activities: Aktivitäten & Gruppen
+  - Pocket Money: Taschengeld-Verwaltung
 
-### Docker
+#### 👨‍👩‍👧 Eltern Dashboard (lagerbank.info/eltern)
+- **5 Seiten** für Eltern (Read-only)
+  - Overview: Willkommensseite
+  - Child: Kinddaten & Gesundheitsinformationen
+  - Photos: Foto-Galerie (nur freigegebene)
+  - Activities: Verfügbare Aktivitäten
+  - Contact: Kontaktformular & FAQ
+
+#### 📝 Registration (anmeldung.lagerbank.info)
+- Mehrstufiges Registrierungsformular
+- Teilnehmer- & Erziehungsberechtigten-Daten
+- Gesundheitsinformationen & Allergien
+- Digitale Signaturen
+- PLZ Auto-Fill für Adressen
+
+---
+
+## 🚀 Schnelles Deployment zu IONOS
+
 ```bash
-docker-compose up -d
+# 1. Apps bauen
+npm run build:admin
+npm run build:registration
+
+# 2. Deploy Script ausführen
+./deploy-ionos.sh
+
+# Eingaben:
+# - SSH Alias (wie du ihn konfiguriert hast)
+# - IONOS Web-Root Code (z.B. w01e9b9c)
+# - Was deployen? (1=Admin+Backend, 2=Registration, 3=Beides)
 ```
 
-Startet:
-- PostgreSQL auf Port 5432
-- FastAPI Backend auf Port 8000
+---
 
-### Frontend (separates Terminal)
-```bash
-cd frontend
-npm install
-npm run dev
+## 📋 Nach dem Deployment
+
+### 1. Datenbank erstellen (IONOS KAS)
+- Neue MySQL Datenbank anlegen
+- Credentials notieren
+- `schema.sql` importieren
+
+### 2. Backend konfigurieren
+Bearbeite via SSH oder SFTP: `backend-php/config/config.php`
+```php
+define('DB_USER', 'k123456_bula');    // ← DEIN DB-User
+define('DB_PASS', 'deinPasswort');    // ← DEIN Passwort
+define('DB_NAME', 'bula2026_camp');   // ← DEIN DB-Name
 ```
 
-Frontend auf http://localhost:5173
+### 3. Testen
+```
+https://lagerbank.info
+Login: admin@lagerbank.info / admin123 (ÄNDERN!)
 
-## 📋 API Docs
-- Swagger: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+https://anmeldung.lagerbank.info
+```
 
-## 📊 Status
+---
 
-- [x] Backend-Setup mit FastAPI + PostgreSQL
-- [x] Database-Schema (11 Models)
-- [x] Authentication (JWT)
-- [x] Alle Core API-Endpunkte
-- [x] Frontend-Grundgerüst mit React
-- [x] Anmeldungs-Formular (5 Steps)
-- [x] Admin-Dashboard (UI Skeleton)
-- [ ] Canvas-Signaturen
-- [ ] Email-System
-- [ ] QR-Scanner PWA
-- [ ] Foto-Upload & Galerie
-- [ ] PDF-Export
+## 🏗️ Technologie
 
-## 🔗 Branch
+| Component | Technology |
+|-----------|-----------|
+| Frontend | React 18 + Vite + Tailwind CSS |
+| Backend | PHP 8.1 + MySQL 8.0 |
+| Auth | JWT + Bcrypt |
+| API | 30+ REST Endpoints |
+| Database | 13 normalisierte Tabellen |
+| Hosting | IONOS SSH/SCP Deployment |
 
-`claude/camp-management-system-qB0OM` - Development Branch für Claude Code
+---
+
+## 📁 Wichtige Dateien
+
+```
+frontend/
+  ├── dist-admin/          → Admin App (fertig gebaut)
+  ├── dist-registration/   → Registration App (fertig gebaut)
+  └── src/
+      ├── pages/           (21 Pages für 3 Dashboards)
+      └── components/      (Admin/Staff/Eltern Layout)
+
+backend-php/
+  ├── config/config.php    → Datenbank-Konfiguration (EDITIEREN!)
+  ├── src/api/            (API Endpoints)
+  ├── src/repositories/   (Datenbank-Zugriff)
+  └── schema.sql          (DB Structure)
+
+deploy-ionos.sh           → Deployment Automation
+DEPLOYMENT.md             → Detaillierte Anleitung
+```
+
+---
+
+## 🔑 Standard Credentials
+
+Nach `schema.sql` Import:
+- **Email:** admin@lagerbank.info
+- **Passwort:** admin123
+- **⚠️ WICHTIG:** Nach erstem Login ändern!
+
+---
+
+## ✨ Was wurde implementiert
+
+✅ 21 Frontend Pages (3 Dashboards × 7 Pages)
+✅ 30+ REST API Endpoints
+✅ Role-Based Access Control (Admin/Staff/Eltern)
+✅ Responsive Design (Mobile/Tablet/Desktop)
+✅ JWT Authentication + Bcrypt
+✅ Photo Release Management
+✅ Activity Group Generator
+✅ Transaction Management
+✅ Report Generation (CSV)
+✅ IONOS SSH Deployment Script
+✅ Vollständige Datenbank Schema
+
+---
+
+## 🆘 Troubleshooting
+
+**"API nicht gefunden" / 404 Fehler**
+- Prüfe: `.htaccess` in Root vorhanden?
+- Prüfe: mod_rewrite aktiviert in IONOS?
+- Prüfe: `config.php` mit richtigen DB-Daten gefüllt?
+
+**"Datenbank-Verbindung fehlgeschlagen"**
+- Prüfe: DB-User, Passwort, Name korrekt?
+- Prüfe: schema.sql importiert?
+
+**"SSH-Verbindung fehlgeschlagen"**
+- Prüfe: SSH Alias korrekt?
+- Prüfe: Web-Root Code korrekt?
+
+---
+
+**Status:** ✅ Production Ready
+**Version:** 1.0.0
