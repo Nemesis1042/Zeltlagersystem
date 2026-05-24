@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # Deploy Backend to IONOS Server
-# Run this from your local machine with SSH access
+# Usage: ./deploy-backend.sh [hostname]
+# Example: ./deploy-backend.sh ionos.de
 
-REMOTE="ssh-w01e9b9c@dd55430"
+HOSTNAME="${1:-ionos.de}"
+REMOTE="ssh-w01e9b9c@w01e9b9c.${HOSTNAME}"
 REMOTE_PATH="/www/htdocs/w01e9b9c/lagerbank.info"
 LOCAL_PATH="./backend-php"
 
