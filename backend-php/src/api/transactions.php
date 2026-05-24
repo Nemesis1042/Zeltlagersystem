@@ -28,10 +28,32 @@ try {
         exit;
     }
 
+    // POST /api/transactions/
+    if ($path === '/api/transactions/' && $method === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!isset($input['user_id']) || !isset($input['total_amount']) || !isset($input['transaction_type'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'user_id, total_amount, transaction_type required']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO transactions (user_id, total_amount, transaction_type) VALUES (?, ?, ?)");
+        $stmt->execute([
+            (int)$input['user_id'],
+            (float)$input['total_amount'],
+            $input['transaction_type']
+        ]);
+
+        http_response_code(201);
+        echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+        exit;
+    }
+
     http_response_code(404);
     echo json_encode(['error' => 'Not found']);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Server error']);
 }
 ?>

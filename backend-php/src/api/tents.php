@@ -30,6 +30,92 @@ try {
         exit;
     }
 
+    // POST /api/tents/
+    if ($path === '/api/tents/' && $method === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!isset($input['name']) || !isset($input['camp_id']) || !isset($input['kapazitaet'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'name, camp_id, kapazitaet required']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO tents (camp_id, name, kapazitaet, belegt) VALUES (?, ?, ?, ?)");
+        $stmt->execute([
+            (int)$input['camp_id'],
+            $input['name'],
+            (int)$input['kapazitaet'],
+            $input['belegt'] ?? 0
+        ]);
+
+        http_response_code(201);
+        echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+        exit;
+    }
+
+    // PATCH /api/tents/{id}
+    if (preg_match('/^\/api\/tents\/(\d+)/', $path, $m) && $method === 'PATCH') {
+        $tent_id = (int)$m[1];
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        $stmt = $pdo->prepare("SELECT id FROM tents WHERE id = ?");
+        $stmt->execute([$tent_id]);
+        if (!$stmt->fetch()) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Tent not found']);
+            exit;
+        }
+
+        $updates = [];
+        $params = [];
+        if (isset($input['name'])) {
+            $updates[] = "name = ?";
+            $params[] = $input['name'];
+        }
+        if (isset($input['kapazitaet'])) {
+            $updates[] = "kapazitaet = ?";
+            $params[] = (int)$input['kapazitaet'];
+        }
+        if (isset($input['belegt'])) {
+            $updates[] = "belegt = ?";
+            $params[] = (int)$input['belegt'];
+        }
+
+        if (empty($updates)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No fields to update']);
+            exit;
+        }
+
+        $params[] = $tent_id;
+        $stmt = $pdo->prepare("UPDATE tents SET " . implode(", ", $updates) . " WHERE id = ?");
+        $stmt->execute($params);
+
+        http_response_code(200);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // DELETE /api/tents/{id}
+    if (preg_match('/^\/api\/tents\/(\d+)/', $path, $m) && $method === 'DELETE') {
+        $tent_id = (int)$m[1];
+
+        $stmt = $pdo->prepare("SELECT id FROM tents WHERE id = ?");
+        $stmt->execute([$tent_id]);
+        if (!$stmt->fetch()) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Tent not found']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM tents WHERE id = ?");
+        $stmt->execute([$tent_id]);
+
+        http_response_code(200);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     http_response_code(404);
     echo json_encode(['error' => 'Not found']);
 } catch (Exception $e) {

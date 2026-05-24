@@ -28,6 +28,63 @@ try {
         exit;
     }
 
+    // POST /api/check-in/
+    if ($path === '/api/check-in/' && $method === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!isset($input['participant_id']) || !isset($input['camp_id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'participant_id and camp_id required']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO check_ins (participant_id, camp_id, checked_in, checked_in_at) VALUES (?, ?, ?, NOW())");
+        $stmt->execute([
+            (int)$input['participant_id'],
+            (int)$input['camp_id'],
+            1
+        ]);
+
+        http_response_code(201);
+        echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+        exit;
+    }
+
+    // PATCH /api/check-in/{id}
+    if (preg_match('/^\/api\/check-in\/(\d+)/', $path, $m) && $method === 'PATCH') {
+        $check_in_id = (int)$m[1];
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        $stmt = $pdo->prepare("SELECT id FROM check_ins WHERE id = ?");
+        $stmt->execute([$check_in_id]);
+        if (!$stmt->fetch()) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Check-in not found']);
+            exit;
+        }
+
+        $updates = [];
+        $params = [];
+        if (isset($input['checked_in'])) {
+            $updates[] = "checked_in = ?";
+            $params[] = (int)$input['checked_in'];
+        }
+
+        if (empty($updates)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No fields to update']);
+            exit;
+        }
+
+        $params[] = $check_in_id;
+        $stmt = $pdo->prepare("UPDATE check_ins SET " . implode(", ", $updates) . " WHERE id = ?");
+        $stmt->execute($params);
+
+        http_response_code(200);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     http_response_code(404);
     echo json_encode(['error' => 'Not found']);
 } catch (Exception $e) {

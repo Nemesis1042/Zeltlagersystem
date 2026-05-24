@@ -28,6 +28,93 @@ try {
         exit;
     }
 
+    // POST /api/users/
+    if ($path === '/api/users/' && $method === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!isset($input['email']) || !isset($input['password']) || !isset($input['vorname']) || !isset($input['nachname'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'email, password, vorname, nachname required']);
+            exit;
+        }
+
+        $password = password_hash($input['password'], PASSWORD_BCRYPT);
+        $stmt = $pdo->prepare("INSERT INTO users (email, password, vorname, nachname, role) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $input['email'],
+            $password,
+            $input['vorname'],
+            $input['nachname'],
+            $input['role'] ?? 'eltern'
+        ]);
+
+        http_response_code(201);
+        echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+        exit;
+    }
+
+    // PATCH /api/users/{id}
+    if (preg_match('/^\/api\/users\/(\d+)/', $path, $m) && $method === 'PATCH') {
+        $user_id = (int)$m[1];
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        if (!$stmt->fetch()) {
+            http_response_code(404);
+            echo json_encode(['error' => 'User not found']);
+            exit;
+        }
+
+        $updates = [];
+        $params = [];
+        foreach (['vorname', 'nachname', 'email', 'role'] as $field) {
+            if (isset($input[$field])) {
+                $updates[] = "$field = ?";
+                $params[] = $input[$field];
+            }
+        }
+
+        if (isset($input['password'])) {
+            $updates[] = "password = ?";
+            $params[] = password_hash($input['password'], PASSWORD_BCRYPT);
+        }
+
+        if (empty($updates)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No fields to update']);
+            exit;
+        }
+
+        $params[] = $user_id;
+        $stmt = $pdo->prepare("UPDATE users SET " . implode(", ", $updates) . " WHERE id = ?");
+        $stmt->execute($params);
+
+        http_response_code(200);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // DELETE /api/users/{id}
+    if (preg_match('/^\/api\/users\/(\d+)/', $path, $m) && $method === 'DELETE') {
+        $user_id = (int)$m[1];
+
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        if (!$stmt->fetch()) {
+            http_response_code(404);
+            echo json_encode(['error' => 'User not found']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+
+        http_response_code(200);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     http_response_code(404);
     echo json_encode(['error' => 'Not found']);
 } catch (Exception $e) {
