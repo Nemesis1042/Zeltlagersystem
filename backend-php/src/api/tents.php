@@ -1,27 +1,25 @@
 <?php
-header('Content-Type: application/json');
-
 $db = Database::getInstance();
 $method = $_SERVER['REQUEST_METHOD'];
-$request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 try {
+    $pdo = $db->getConnection();
+
     // GET /api/tents/
-    if ($request_uri === '/api/tents/' && $method === 'GET') {
+    if ($path === '/api/tents/' && $method === 'GET') {
         $camp_id = $_GET['camp_id'] ?? 1;
-        $query = "SELECT id, camp_id, name, kapazitaet, belegt FROM tents WHERE camp_id = ?";
-        $stmt = $db->execute($query, [$camp_id]);
-        echo json_encode($stmt->fetchAll() ?: []);
+        $stmt = $pdo->prepare("SELECT id, camp_id, name, kapazitaet, belegt FROM tents WHERE camp_id = ? ORDER BY name");
+        $stmt->execute([$camp_id]);
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         exit;
     }
 
     // GET /api/tents/{id}
-    if (preg_match('/^\/api\/tents\/(\d+)/', $request_uri, $matches) && $method === 'GET') {
-        $tent_id = $matches[1];
-        $query = "SELECT id, camp_id, name, kapazitaet, belegt FROM tents WHERE id = ?";
-        $stmt = $db->execute($query, [$tent_id]);
-        $result = $stmt->fetch();
-        echo json_encode($result ?: null);
+    if (preg_match('/^\/api\/tents\/(\d+)/', $path, $m) && $method === 'GET') {
+        $stmt = $pdo->prepare("SELECT id, camp_id, name, kapazitaet, belegt FROM tents WHERE id = ?");
+        $stmt->execute([$m[1]]);
+        echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
         exit;
     }
 
@@ -29,5 +27,6 @@ try {
     echo json_encode(['error' => 'Not found']);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
+    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
 }
+?>
