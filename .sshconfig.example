@@ -1,0 +1,20 @@
+# SSH Deployment Configuration
+# Kopiere diese Datei zu .sshconfig und fülle deine Daten ein
+# WICHTIG: .sshconfig zu .gitignore hinzufügen!
+
+# SSH Host (z.B. k12345.kasserver.com)
+SSH_HOST="k12345.kasserver.com"
+
+# SSH Username (z.B. k123456)
+SSH_USER="k123456"
+
+# SSH Port (Standard: 22)
+SSH_PORT="22"
+
+# Optional: Pfad zum SSH-Schlüssel
+# Wenn nicht gesetzt, wird Passwort-Auth verwendet
+SSH_KEY="/home/user/.ssh/id_rsa"
+
+# Optional: SSH Passwort (wenn kein SSH_KEY gesetzt)
+# BESSER: SSH-Schlüssel verwenden!
+SSH_PASS=""
