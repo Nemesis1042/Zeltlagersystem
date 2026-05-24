@@ -8,6 +8,7 @@ $request_method = $_SERVER['REQUEST_METHOD'];
 
 // API Routes
 $routes = [
+    'debug' => __DIR__ . '/../src/api/debug.php',
     'photos' => __DIR__ . '/../src/api/photos.php',
     'transactions' => __DIR__ . '/../src/api/transactions.php',
     'participants' => __DIR__ . '/../src/api/participants.php',
