@@ -29,16 +29,31 @@ case $CHOICE in
     1|3)
         echo -e "${BLUE}📤 Backend + Admin (komplett)${NC}"
 
-        # Backend komplett hochladen (alle änderungen)
-        scp -r backend-php/src/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/src/
-        scp -r backend-php/config/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/config/
-        scp -r backend-php/public/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/backend-php/public/
+        # Backend Files - PUBLIC (main entry point)
+        echo -e "${YELLOW}  → Public files...${NC}"
+        scp backend-php/public/index.php ionos:/www/htdocs/w01e9b9c/lagerbank.info/
 
-        # Admin Frontend hochladen
+        # Backend Files - SRC (API handlers)
+        echo -e "${YELLOW}  → API files...${NC}"
+        scp -r backend-php/src/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/src/ 2>/dev/null || mkdir -p /tmp/backend-src
+        scp -r backend-php/src/ ionos:/www/htdocs/w01e9b9c/lagerbank.info/
+
+        # Backend Files - CONFIG
+        echo -e "${YELLOW}  → Config files...${NC}"
+        scp -r backend-php/config/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/config/
+
+        # Database Schema
+        echo -e "${YELLOW}  → Database schema...${NC}"
+        scp schema.sql ionos:/www/htdocs/w01e9b9c/lagerbank.info/
+        scp reset-db.sql ionos:/www/htdocs/w01e9b9c/lagerbank.info/
+
+        # Admin Frontend
+        echo -e "${YELLOW}  → Admin frontend...${NC}"
         scp -r frontend/dist-admin/assets/* ionos:/www/htdocs/w01e9b9c/lagerbank.info/assets/
         scp frontend/dist-admin/index.html ionos:/www/htdocs/w01e9b9c/lagerbank.info/
 
         # .htaccess für URL Rewriting
+        echo -e "${YELLOW}  → .htaccess...${NC}"
         scp .htaccess ionos:/www/htdocs/w01e9b9c/lagerbank.info/
 
         echo -e "${GREEN}✓ Admin + Backend OK${NC}"
@@ -49,11 +64,13 @@ case $CHOICE in
     2|3)
         echo -e "${BLUE}📤 Registration (komplett)${NC}"
 
-        # Registration Frontend hochladen
+        # Registration Frontend
+        echo -e "${YELLOW}  → Registration frontend...${NC}"
         scp -r frontend/dist-registration/assets/* ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/assets/
         scp frontend/dist-registration/registration.html ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/index.html
 
         # .htaccess für URL Rewriting
+        echo -e "${YELLOW}  → .htaccess...${NC}"
         scp .htaccess ionos:/www/htdocs/w01e9b9c/anmeldung.lagerbank.info/
 
         echo -e "${GREEN}✓ Registration OK${NC}"
@@ -65,3 +82,9 @@ echo -e "\nDeployment erfolgreich hochgeladen."
 echo -e "Änderungen sind live auf:"
 echo -e "  - Admin: https://lagerbank.info"
 echo -e "  - Registration: https://anmeldung.lagerbank.info"
+echo -e "\n${YELLOW}Nächste Schritte:${NC}"
+echo -e "1. Melde dich in phpMyAdmin an"
+echo -e "2. Führe reset-db.sql aus (SQL-Tab)"
+echo -e "3. Importiere schema.sql (Import-Tab)"
+echo -e "4. Login mit: admin@lagerbank.info / admin123"
+
