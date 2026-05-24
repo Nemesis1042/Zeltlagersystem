@@ -87,11 +87,11 @@ case $CHOICE in
         echo -e "${BLUE}📤 Registration${NC}"
         
         # Registration-App hochladen
-        scp -r frontend/dist-registration/assets $IONOS_HOST/anmeldung.lagerbank.info/
-        scp frontend/dist-registration/registration.html $IONOS_HOST/anmeldung.lagerbank.info/index.html
-        
+        scp -r frontend/dist-registration/assets $IONOS_HOST/anmeldunglagerbank.info/
+        scp frontend/dist-registration/registration.html $IONOS_HOST/anmeldunglagerbank.info/index.html
+
         # .htaccess hochladen
-        scp .htaccess $IONOS_HOST/anmeldung.lagerbank.info/
+        scp .htaccess $IONOS_HOST/anmeldunglagerbank.info/
         
         echo -e "${GREEN}✓ Registration OK${NC}"
         ;;
