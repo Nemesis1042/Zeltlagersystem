@@ -18,11 +18,19 @@ import AdminReports from './pages/AdminReports'
 import AdminAdministration from './pages/AdminAdministration'
 import AdminPermissions from './pages/AdminPermissions'
 
-// MA/Staff Pages
-import MADashboard from './pages/MADashboard'
+// Staff Pages
+import StaffOverview from './pages/StaffOverview'
+import StaffParticipants from './pages/StaffParticipants'
+import StaffCheckIn from './pages/StaffCheckIn'
+import StaffActivities from './pages/StaffActivities'
+import StaffPocketMoney from './pages/StaffPocketMoney'
 
 // Eltern Pages
-import ElternDashboard from './pages/ElternDashboard'
+import ElternOverview from './pages/ElternOverview'
+import ElternChild from './pages/ElternChild'
+import ElternPhotos from './pages/ElternPhotos'
+import ElternActivities from './pages/ElternActivities'
+import ElternContact from './pages/ElternContact'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'))
@@ -135,27 +143,93 @@ function App() {
         />
         <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
 
-        {/* MA/Staff Routes */}
+        {/* Staff Routes */}
         <Route
-          path="/staff/*"
+          path="/staff/overview"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <MADashboard onLogout={handleLogout} />
+              <StaffOverview onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
-        <Route path="/ma-dashboard" element={<Navigate to="/staff" replace />} />
+        <Route
+          path="/staff/participants"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <StaffParticipants onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/check-in"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <StaffCheckIn onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/activities"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <StaffActivities onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/pocket-money"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <StaffPocketMoney onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/staff" element={<Navigate to="/staff/overview" replace />} />
+        <Route path="/ma-dashboard" element={<Navigate to="/staff/overview" replace />} />
 
         {/* Eltern Routes */}
         <Route
-          path="/eltern/*"
+          path="/eltern/overview"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <ElternDashboard onLogout={handleLogout} />
+              <ElternOverview onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
-        <Route path="/eltern-dashboard" element={<Navigate to="/eltern" replace />} />
+        <Route
+          path="/eltern/child"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ElternChild onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/eltern/photos"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ElternPhotos onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/eltern/activities"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ElternActivities onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/eltern/contact"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ElternContact onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/eltern" element={<Navigate to="/eltern/overview" replace />} />
+        <Route path="/eltern-dashboard" element={<Navigate to="/eltern/overview" replace />} />
 
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
