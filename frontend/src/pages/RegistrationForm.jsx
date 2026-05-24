@@ -102,7 +102,7 @@ export default function RegistrationForm() {
         }
       }
 
-      const response = await axios.post('/api/registrations/', formData)
+      const response = await axios.post('https://lagerbank.info/api/registrations/', formData)
       setSuccess(true)
       setTimeout(() => {
         window.location.href = '/login'
