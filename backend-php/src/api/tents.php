@@ -6,8 +6,19 @@ $tentRepo = new TentRepository();
 // GET /tents/?camp_id=1
 $router->get('/tents/', function() use ($tentRepo) {
     $camp_id = $_GET['camp_id'] ?? 1;
-    $tents = $tentRepo->getByCampId($camp_id);
-    return json_encode($tents);
+
+    try {
+        $tents = $tentRepo->getByCampId($camp_id);
+
+        if ($tents === null || !is_array($tents)) {
+            $tents = [];
+        }
+
+        return json_encode($tents);
+    } catch (Exception $e) {
+        http_response_code(500);
+        return json_encode(['error' => $e->getMessage()]);
+    }
 });
 
 // GET /tents/{id}
