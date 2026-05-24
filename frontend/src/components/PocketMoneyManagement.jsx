@@ -15,7 +15,7 @@ export default function PocketMoneyManagement({ campId = 1 }) {
 
   useEffect(() => {
     loadParticipants()
-  }, [])
+  }, [campId])
 
   const loadParticipants = async () => {
     try {

@@ -12,7 +12,7 @@ export default function PhotoUpload({ campId = 1 }) {
 
   useEffect(() => {
     loadPhotos()
-  }, [])
+  }, [campId])
 
   const loadPhotos = async () => {
     try {

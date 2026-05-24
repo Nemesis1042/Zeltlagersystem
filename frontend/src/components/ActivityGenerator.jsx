@@ -16,7 +16,7 @@ export default function ActivityGenerator({ campId = 1 }) {
 
   useEffect(() => {
     loadActivities()
-  }, [])
+  }, [campId])
 
   const loadActivities = async () => {
     try {

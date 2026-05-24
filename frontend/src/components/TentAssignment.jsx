@@ -14,7 +14,7 @@ export default function TentAssignment({ campId = 1 }) {
 
   useEffect(() => {
     loadData()
-  }, [])
+  }, [campId])
 
   const loadData = async () => {
     try {
