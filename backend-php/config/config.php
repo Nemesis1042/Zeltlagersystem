@@ -1,53 +1,22 @@
 <?php
-/**
- * BULA2026 - Zeltlager-Verwaltungssystem
- * Konfiguration für All-Inkl Hosting
- */
-
 // Database Configuration
 define('DB_HOST', 'localhost');
-define('DB_USER', 'd0470938');
-define('DB_PASS', 'Za5KgCOQf-Z1tMa1xova');
-define('DB_NAME', 'd0470938');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'bula2026');
 
-// App Configuration
-define('APP_NAME', 'BULA2026');
-define('APP_VERSION', '2.0.0');
-define('APP_ENV', 'development');    // development | production
+// API Configuration
+define('API_BASE_URL', 'http://localhost:8000/api');
+define('FRONTEND_URL', 'http://localhost:5173');
+define('JWT_SECRET', 'your-secret-key-change-in-production');
 
-// Paths
-define('BASE_PATH', dirname(__DIR__));
-define('PUBLIC_PATH', BASE_PATH . '/public');
-define('UPLOAD_PATH', BASE_PATH . '/uploads');
+// CORS
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Content-Type: application/json');
 
-// JWT/Authentication
-define('JWT_SECRET', 'BULA2026_JWT_SECRET_KEY_zeltlager_camp_management_system');
-define('JWT_EXPIRY', 86400 * 7); // 7 Tage
-
-// Email Configuration
-define('MAIL_FROM', 'noreply@lagerbank.info');
-define('MAIL_HOST', 'mail.all-inkl.com');
-define('MAIL_PORT', 587);
-define('MAIL_USER', '');
-define('MAIL_PASS', '');
-
-// Cors
-define('ALLOWED_ORIGINS', array(
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://lagerbank.info',
-    'https://admin.lagerbank.info',
-    'https://anmeldung.lagerbank.info'
-));
-
-// Error Handling
-if (APP_ENV === 'development') {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-} else {
-    error_reporting(0);
-    ini_set('display_errors', 0);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
 }
-
-// Timezone
-date_default_timezone_set('Europe/Zurich');

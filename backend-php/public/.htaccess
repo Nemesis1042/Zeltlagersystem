@@ -1,34 +1,14 @@
-# BULA2026 - URL Rewriting für All-Inkl
-# Alle Requests gehen durch index.php
-
 <IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
+  RewriteEngine On
+  RewriteBase /
 
-    # Blockiere Zugriff auf sensitive Dateien
-    RewriteRule ^\.env$ - [F]
-    RewriteRule ^config$ - [F]
-    RewriteRule ^src$ - [F]
+  # Skip actual files and directories
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
 
-    # Leite alle Requests auf index.php um (außer echte Dateien/Verzeichnisse)
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php [QSA,L]
-</IfModule>
-
-# Enable GZIP Compression
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html
-    AddOutputFilterByType DEFLATE text/plain
-    AddOutputFilterByType DEFLATE text/xml
-    AddOutputFilterByType DEFLATE application/json
-    AddOutputFilterByType DEFLATE application/javascript
-    AddOutputFilterByType DEFLATE text/css
-</IfModule>
-
-# Add CORS Headers
-<IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+  # Route all API requests to index.php
+  RewriteRule ^api/(.*)$ index.php [QSA,L]
+  
+  # React Router support
+  RewriteRule ^ index.html [QSA,L]
 </IfModule>

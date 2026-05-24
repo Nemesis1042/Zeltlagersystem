@@ -1,87 +1,22 @@
 <?php
-/**
- * BULA2026 - API Entry Point
- * All requests go through here
- */
 
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-
-// Configuration
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/../src/Router.php';
 
-// Load repositories
-require_once __DIR__ . '/../src/repositories/UserRepository.php';
-require_once __DIR__ . '/../src/repositories/ParticipantRepository.php';
-require_once __DIR__ . '/../src/repositories/TentRepository.php';
-require_once __DIR__ . '/../src/repositories/ActivityRepository.php';
-require_once __DIR__ . '/../src/repositories/RegistrationRepository.php';
-require_once __DIR__ . '/../src/repositories/PhotoRepository.php';
-require_once __DIR__ . '/../src/repositories/PocketMoneyRepository.php';
-require_once __DIR__ . '/../src/repositories/CampRepository.php';
-require_once __DIR__ . '/../src/repositories/TransactionRepository.php';
+$request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$request_method = $_SERVER['REQUEST_METHOD'];
 
-// Load services
-require_once __DIR__ . '/../src/services/AuthService.php';
+// Route /api/photos/*
+if (preg_match('/^\/api\/photos/', $request_uri)) {
+    require __DIR__ . '/../src/api/photos.php';
+    exit;
+}
 
-// Initialize Router
-$router = new Router();
+// Health check
+if ($request_uri === '/api/health' && $request_method === 'GET') {
+    echo json_encode(['status' => 'ok']);
+    exit;
+}
 
-// Health Check
-$router->get('/health', function() {
-    http_response_code(200);
-    echo json_encode([
-        'status' => 'ok',
-        'version' => '1.0.0',
-        'timestamp' => date('c')
-    ]);
-});
-
-// Root Info
-$router->get('/', function() {
-    http_response_code(200);
-    echo json_encode([
-        'message' => 'BULA2026 Zeltlager-Verwaltungssystem API',
-        'version' => '1.0.0',
-        'status' => 'ready'
-    ]);
-});
-
-// Authentication Routes
-require __DIR__ . '/../src/api/auth.php';
-
-// Users Routes
-require __DIR__ . '/../src/api/users.php';
-
-// Participants Routes
-require __DIR__ . '/../src/api/participants.php';
-
-// Registrations Routes
-require __DIR__ . '/../src/api/registrations.php';
-
-// Check-In Routes
-require __DIR__ . '/../src/api/check-in.php';
-
-// Tents Routes
-require __DIR__ . '/../src/api/tents.php';
-
-// Activities Routes
-require __DIR__ . '/../src/api/activities.php';
-
-// Photos Routes
-require __DIR__ . '/../src/api/photos.php';
-
-// Pocket Money Routes
-require __DIR__ . '/../src/api/pocket-money.php';
-
-// Camps Routes
-require __DIR__ . '/../src/api/camps.php';
-
-// Transactions Routes
-require __DIR__ . '/../src/api/transactions.php';
-
-// Dispatch Request
-$router->dispatch();
+// Default 404
+http_response_code(404);
+echo json_encode(['error' => 'API endpoint not found']);
