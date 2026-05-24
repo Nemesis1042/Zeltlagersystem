@@ -1,97 +1,64 @@
 <?php
-/**
- * User Repository
- * Datenbankzugriffe für Benutzer (auth_users Tabelle)
- */
-
-require_once __DIR__ . '/../../config/Database.php';
 
 class UserRepository {
     private $db;
 
     public function __construct() {
-        $this->db = Database::getInstance()->getConnection();
+        $this->db = Database::getInstance();
     }
 
-    /**
-     * Benutzer nach Email finden
-     */
     public function findByEmail($email) {
-        $query = 'SELECT * FROM auth_users WHERE email = :email LIMIT 1';
-        $stmt = $this->db->prepare($query);
-        $stmt->execute(array(':email' => $email));
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $query = 'SELECT * FROM auth_users WHERE email = ?';
+        return $this->db->execute($query, [$email])->fetch();
     }
 
-    /**
-     * Benutzer nach ID finden
-     */
     public function findById($id) {
-        $query = 'SELECT * FROM auth_users WHERE id = :id LIMIT 1';
-        $stmt = $this->db->prepare($query);
-        $stmt->execute(array(':id' => $id));
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $query = 'SELECT * FROM auth_users WHERE id = ?';
+        return $this->db->execute($query, [$id])->fetch();
     }
 
-    /**
-     * Alle Benutzer abrufen
-     */
     public function getAll() {
         $query = 'SELECT id, email, vorname, nachname, role, created_at FROM auth_users ORDER BY created_at DESC';
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->db->execute($query, [])->fetchAll();
     }
 
-    /**
-     * Neuen Benutzer erstellen
-     */
     public function create($data) {
         $query = 'INSERT INTO auth_users (email, password, vorname, nachname, role, created_at)
-                  VALUES (:email, :password, :vorname, :nachname, :role, NOW())';
+                  VALUES (?, ?, ?, ?, ?, NOW())';
 
-        $stmt = $this->db->prepare($query);
-        $stmt->execute(array(
-            ':email' => $data['email'],
-            ':password' => $data['password_hash'],
-            ':vorname' => $data['vorname'],
-            ':nachname' => $data['nachname'],
-            ':role' => $data['role']
-        ));
+        $this->db->execute($query, [
+            $data['email'],
+            $data['password_hash'],
+            $data['vorname'],
+            $data['nachname'],
+            $data['role']
+        ]);
 
         return $this->db->lastInsertId();
     }
 
-    /**
-     * Benutzer aktualisieren
-     */
     public function update($id, $data) {
-        $fields = array();
-        $values = array(':id' => $id);
+        $fields = [];
+        $params = [];
 
         foreach ($data as $key => $value) {
             if ($key === 'password_hash') {
-                $fields[] = 'password = :password';
-                $values[':password'] = $value;
+                $fields[] = 'password = ?';
             } else {
-                $fields[] = $key . ' = :' . $key;
-                $values[':' . $key] = $value;
+                $fields[] = $key . ' = ?';
             }
+            $params[] = $value;
         }
 
         if (empty($fields)) return false;
 
-        $query = 'UPDATE auth_users SET ' . implode(', ', $fields) . ' WHERE id = :id';
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute($values);
+        $params[] = $id;
+        $query = 'UPDATE auth_users SET ' . implode(', ', $fields) . ' WHERE id = ?';
+        return $this->db->execute($query, $params);
     }
 
-    /**
-     * Benutzer löschen
-     */
     public function delete($id) {
-        $query = 'DELETE FROM auth_users WHERE id = :id';
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute(array(':id' => $id));
+        $query = 'DELETE FROM auth_users WHERE id = ?';
+        return $this->db->execute($query, [$id]);
     }
 }

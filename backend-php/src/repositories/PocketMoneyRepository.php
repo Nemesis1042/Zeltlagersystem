@@ -8,32 +8,25 @@ class PocketMoneyRepository {
     }
 
     public function getAccountByParticipantId($participant_id) {
-        $stmt = $this->db->prepare("
-            SELECT * FROM pocket_money_accounts WHERE participant_id = ?
-        ");
-        $result = $this->db->execute($stmt, [$participant_id]);
-        return $result[0] ?? null;
+        $query = "SELECT * FROM pocket_money_accounts WHERE participant_id = ?";
+        return $this->db->execute($query, [$participant_id])->fetch();
     }
 
     public function getAccountById($account_id) {
-        $stmt = $this->db->prepare("
-            SELECT * FROM pocket_money_accounts WHERE id = ?
-        ");
-        $result = $this->db->execute($stmt, [$account_id]);
-        return $result[0] ?? null;
+        $query = "SELECT * FROM pocket_money_accounts WHERE id = ?";
+        return $this->db->execute($query, [$account_id])->fetch();
     }
 
     public function createAccount($participant_id, $initial_balance = 0) {
-        $stmt = $this->db->prepare("
+        $query = "
             INSERT INTO pocket_money_accounts (participant_id, balance, created_at)
             VALUES (?, ?, NOW())
-        ");
-        $this->db->execute($stmt, [$participant_id, $initial_balance]);
+        ";
+        $this->db->execute($query, [$participant_id, $initial_balance]);
         return $this->db->lastInsertId();
     }
 
     public function addTransaction($account_id, $type, $amount, $description = '', $product_id = null) {
-        // Calculate new balance
         $account = $this->getAccountById($account_id);
         if (!$account) {
             return false;
@@ -43,31 +36,27 @@ class PocketMoneyRepository {
             ? $account['balance'] + $amount
             : $account['balance'] - $amount;
 
-        // Add transaction
-        $stmt = $this->db->prepare("
+        $query = "
             INSERT INTO transactions (pocket_money_account_id, type, amount, description, product_id, created_at)
             VALUES (?, ?, ?, ?, ?, NOW())
-        ");
-        $this->db->execute($stmt, [$account_id, $type, $amount, $description, $product_id]);
+        ";
+        $this->db->execute($query, [$account_id, $type, $amount, $description, $product_id]);
         $transaction_id = $this->db->lastInsertId();
 
-        // Update account balance
-        $stmt = $this->db->prepare("
-            UPDATE pocket_money_accounts SET balance = ? WHERE id = ?
-        ");
-        $this->db->execute($stmt, [$new_balance, $account_id]);
+        $query = "UPDATE pocket_money_accounts SET balance = ? WHERE id = ?";
+        $this->db->execute($query, [$new_balance, $account_id]);
 
         return $transaction_id;
     }
 
     public function getTransactions($account_id, $limit = 100) {
-        $stmt = $this->db->prepare("
+        $query = "
             SELECT * FROM transactions
             WHERE pocket_money_account_id = ?
             ORDER BY created_at DESC
             LIMIT ?
-        ");
-        return $this->db->execute($stmt, [$account_id, $limit]);
+        ";
+        return $this->db->execute($query, [$account_id, $limit])->fetchAll();
     }
 
     public function getBalance($account_id) {
@@ -76,22 +65,22 @@ class PocketMoneyRepository {
     }
 
     public function getAccountByCampId($camp_id) {
-        $stmt = $this->db->prepare("
+        $query = "
             SELECT pma.* FROM pocket_money_accounts pma
             JOIN participants p ON pma.participant_id = p.id
             WHERE p.camp_id = ?
             ORDER BY pma.created_at DESC
-        ");
-        return $this->db->execute($stmt, [$camp_id]);
+        ";
+        return $this->db->execute($query, [$camp_id])->fetchAll();
     }
 
     public function getCampTotalBalance($camp_id) {
-        $stmt = $this->db->prepare("
+        $query = "
             SELECT SUM(pma.balance) as total FROM pocket_money_accounts pma
             JOIN participants p ON pma.participant_id = p.id
             WHERE p.camp_id = ?
-        ");
-        $result = $this->db->execute($stmt, [$camp_id]);
-        return $result[0]['total'] ?? 0;
+        ";
+        $result = $this->db->execute($query, [$camp_id])->fetch();
+        return $result['total'] ?? 0;
     }
 }
