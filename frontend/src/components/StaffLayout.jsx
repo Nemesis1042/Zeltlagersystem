@@ -20,6 +20,7 @@ export default function StaffLayout({ children, onLogout }) {
     { id: 'check-in', label: '✓ Check-In', path: '/staff/check-in' },
     { id: 'activities', label: '🎯 Aktivitäten', path: '/staff/activities' },
     { id: 'pocket-money', label: '💰 Taschengeld', path: '/staff/pocket-money' },
+    { id: 'verkauf', label: '🛒 Verkauf', path: '/staff/verkauf' },
   ]
 
   const isActive = (path) => location.pathname === path

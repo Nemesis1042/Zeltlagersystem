@@ -1,105 +1,84 @@
 <?php
+$db = Database::getInstance();
+$method = $_SERVER['REQUEST_METHOD'];
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-$pocketMoneyRepo = new PocketMoneyRepository();
-$participantRepo = new ParticipantRepository();
-
-// GET /pocket-money/accounts/{participant_id}
-$router->get('/pocket-money/accounts/{participant_id}', function($participant_id) use ($pocketMoneyRepo, $participantRepo) {
-    $participant = $participantRepo->getById($participant_id);
-    if (!$participant) {
-        http_response_code(404);
-        return json_encode(['error' => 'Participant not found']);
-    }
-
-    $account = $pocketMoneyRepo->getAccountByParticipantId($participant_id);
-
+// GET /api/pocket-money/participant/{id}
+if ($method === 'GET' && preg_match('/^\/api\/pocket-money\/participant\/(\d+)\/$/', $path, $m)) {
+    $participant_id = $m[1];
+    $camp_id = $_GET['camp_id'] ?? 1;
+    
+    $stmt = $db->execute(
+        'SELECT id, balance FROM pocket_money_accounts WHERE participant_id = ? AND camp_id = ?',
+        [$participant_id, $camp_id]
+    );
+    $account = $stmt->fetch();
+    
     if (!$account) {
-        // Create account if it doesn't exist
-        $account_id = $pocketMoneyRepo->createAccount($participant_id, 0);
-        $account = $pocketMoneyRepo->getAccountById($account_id);
-    }
-
-    return json_encode($account);
-});
-
-// POST /pocket-money/transactions
-$router->post('/pocket-money/transactions', function() use ($pocketMoneyRepo, $participantRepo) {
-    global $currentUser;
-
-    $data = json_decode(file_get_contents('php://input'), true);
-    $participant_id = $data['participant_id'] ?? null;
-    $type = $data['type'] ?? 'spending';
-    $amount = floatval($data['amount'] ?? 0);
-    $description = $data['description'] ?? '';
-    $product_id = $data['product_id'] ?? null;
-
-    if (!$participant_id || $amount <= 0) {
-        http_response_code(400);
-        return json_encode(['error' => 'Invalid participant or amount']);
-    }
-
-    $participant = $participantRepo->getById($participant_id);
-    if (!$participant) {
-        http_response_code(404);
-        return json_encode(['error' => 'Participant not found']);
-    }
-
-    $account = $pocketMoneyRepo->getAccountByParticipantId($participant_id);
-    if (!$account) {
-        $account_id = $pocketMoneyRepo->createAccount($participant_id, 0);
-        $account = $pocketMoneyRepo->getAccountById($account_id);
-    }
-
-    try {
-        $transaction_id = $pocketMoneyRepo->addTransaction(
-            $account['id'],
-            $type,
-            $amount,
-            $description,
-            $product_id
+        $db->execute(
+            'INSERT INTO pocket_money_accounts (participant_id, camp_id, balance) VALUES (?, ?, ?)',
+            [$participant_id, $camp_id, 0]
         );
-
-        $updated_account = $pocketMoneyRepo->getAccountById($account['id']);
-
-        return json_encode([
-            'success' => true,
-            'transaction_id' => $transaction_id,
-            'account' => $updated_account
-        ]);
-    } catch (Exception $e) {
-        http_response_code(500);
-        return json_encode(['error' => $e->getMessage()]);
+        $account = ['id' => $db->getConnection()->lastInsertId(), 'balance' => 0];
     }
-});
+    
+    echo json_encode($account);
+    exit;
+}
 
-// GET /pocket-money/accounts/{account_id}/transactions
-$router->get('/pocket-money/accounts/{account_id}/transactions', function($account_id) use ($pocketMoneyRepo) {
-    $account = $pocketMoneyRepo->getAccountById($account_id);
-    if (!$account) {
+// POST /api/pocket-money/sale
+if ($method === 'POST' && preg_match('/^\/api\/pocket-money\/sale\/$/', $path)) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    $account_id = $data['account_id'] ?? null;
+    $product_id = $data['product_id'] ?? null;
+    $amount = $data['amount'] ?? 0;
+    
+    if (!$account_id || !$product_id || !$amount) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing required fields']);
+        exit;
+    }
+    
+    // Get product price
+    $stmt = $db->execute('SELECT price FROM products WHERE id = ?', [$product_id]);
+    $product = $stmt->fetch();
+    if (!$product) {
         http_response_code(404);
-        return json_encode(['error' => 'Account not found']);
+        echo json_encode(['error' => 'Product not found']);
+        exit;
     }
-
-    $limit = $_GET['limit'] ?? 50;
-    $transactions = $pocketMoneyRepo->getTransactions($account_id, $limit);
-
-    return json_encode($transactions);
-});
-
-// GET /pocket-money/accounts/{account_id}
-$router->get('/pocket-money/accounts/{account_id}', function($account_id) use ($pocketMoneyRepo) {
-    $account = $pocketMoneyRepo->getAccountById($account_id);
-
-    if (!$account) {
-        http_response_code(404);
-        return json_encode(['error' => 'Account not found']);
+    
+    $price = $product['price'];
+    
+    // Check balance
+    $stmt = $db->execute('SELECT balance FROM pocket_money_accounts WHERE id = ?', [$account_id]);
+    $account = $stmt->fetch();
+    if (!$account || $account['balance'] < $price) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Insufficient balance']);
+        exit;
     }
+    
+    // Deduct from balance
+    $db->execute(
+        'UPDATE pocket_money_accounts SET balance = balance - ? WHERE id = ?',
+        [$price, $account_id]
+    );
+    
+    // Record transaction
+    $db->execute(
+        'INSERT INTO transactions (account_id, product_id, amount, type, description) VALUES (?, ?, ?, ?, ?)',
+        [$account_id, $product_id, $price, 'sale', 'Product sale']
+    );
+    
+    echo json_encode([
+        'success' => true,
+        'new_balance' => $account['balance'] - $price,
+        'product_price' => $price
+    ]);
+    exit;
+}
 
-    return json_encode($account);
-});
-
-// GET /pocket-money/camp/{camp_id}/balance
-$router->get('/pocket-money/camp/{camp_id}/balance', function($camp_id) use ($pocketMoneyRepo) {
-    $accounts = $pocketMoneyRepo->getAccountByCampId($camp_id);
-    return json_encode($accounts);
-});
+http_response_code(404);
+echo json_encode(['error' => 'Not found']);

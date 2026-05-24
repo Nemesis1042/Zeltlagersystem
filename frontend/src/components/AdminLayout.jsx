@@ -23,6 +23,7 @@ export default function AdminLayout({ children, onLogout }) {
     { id: 'activities', label: '🎯 Aktivitäten', path: '/admin/activities' },
     { id: 'photos', label: '📸 Fotos', path: '/admin/photos' },
     { id: 'finances', label: '💰 Finanzen', path: '/admin/finances' },
+    { id: 'verkauf', label: '🛒 Verkauf', path: '/admin/verkauf' },
     { id: 'reports', label: '📊 Berichte', path: '/admin/reports' },
     { id: 'administration', label: '⚙️ Admin', path: '/admin/administration' },
     { id: 'permissions', label: '🔐 Berechtigungen', path: '/admin/permissions' },

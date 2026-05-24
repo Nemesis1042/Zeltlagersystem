@@ -17,6 +17,7 @@ import AdminFinances from './pages/AdminFinances'
 import AdminReports from './pages/AdminReports'
 import AdminAdministration from './pages/AdminAdministration'
 import AdminPermissions from './pages/AdminPermissions'
+import AdminVerkauf from './pages/AdminVerkauf'
 
 // Staff Pages
 import StaffOverview from './pages/StaffOverview'
@@ -24,6 +25,7 @@ import StaffParticipants from './pages/StaffParticipants'
 import StaffCheckIn from './pages/StaffCheckIn'
 import StaffActivities from './pages/StaffActivities'
 import StaffPocketMoney from './pages/StaffPocketMoney'
+import StaffVerkauf from './pages/StaffVerkauf'
 
 // Eltern Pages
 import ElternOverview from './pages/ElternOverview'
@@ -141,6 +143,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/verkauf"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminVerkauf onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
 
         {/* Staff Routes */}
@@ -181,6 +191,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <StaffPocketMoney onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/staff/verkauf"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <StaffVerkauf onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
