@@ -152,7 +152,7 @@ export default function TentAssignment({ campId = 1 }) {
               <option value="">-- Bitte wählen --</option>
               {tents.map(tent => (
                 <option key={tent.id} value={tent.id}>
-                  {tent.name} ({tent.occupancy || 0}/{tent.capacity})
+                  {tent.name} ({tent.belegt || 0}/{tent.kapazitaet})
                 </option>
               ))}
             </select>
@@ -197,12 +197,12 @@ export default function TentAssignment({ campId = 1 }) {
             <div key={tent.id} className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
               <p className="font-semibold text-navy mb-2">{tent.name}</p>
               <p className="text-sm text-slate-600 mb-2">
-                Kapazität: {tent.occupancy || 0}/{tent.capacity}
+                Kapazität: {tent.belegt || 0}/{tent.kapazitaet}
               </p>
               <div className="w-full bg-slate-200 rounded-full h-2">
                 <div
                   className="bg-gold h-2 rounded-full transition-all"
-                  style={{ width: `${((tent.occupancy || 0) / tent.capacity) * 100}%` }}
+                  style={{ width: `${((tent.belegt || 0) / tent.kapazitaet) * 100}%` }}
                 ></div>
               </div>
             </div>

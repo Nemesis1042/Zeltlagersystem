@@ -84,7 +84,7 @@ export default function AdminTents({ onLogout }) {
     const tent = tents.find(t => t.id === tentId)
     return {
       current: members.length,
-      max: tent?.capacity || 8
+      max: tent?.kapazitaet || 8
     }
   }
 
@@ -226,7 +226,7 @@ export default function AdminTents({ onLogout }) {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-lg font-bold text-navy">{tent.name}</h3>
-                      <p className="text-sm text-slate-600">Kapazität: {tent.capacity} Personen</p>
+                      <p className="text-sm text-slate-600">Kapazität: {tent.kapazitaet} Personen</p>
                     </div>
                     <div
                       className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold group-hover:scale-110 transition-transform"
