@@ -1,11 +1,9 @@
 #!/bin/bash
 
 # Deploy Backend to IONOS Server
-# Usage: ./deploy-backend.sh [hostname]
-# Example: ./deploy-backend.sh ionos.de
+# Usage: ./deploy-backend.sh
 
-HOSTNAME="${1:-ionos.de}"
-REMOTE="ssh-w01e9b9c@w01e9b9c.${HOSTNAME}"
+REMOTE="ionos"
 REMOTE_PATH="/www/htdocs/w01e9b9c/lagerbank.info"
 LOCAL_PATH="./backend-php"
 
