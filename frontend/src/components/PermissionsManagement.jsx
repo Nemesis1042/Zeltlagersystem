@@ -70,17 +70,21 @@ export default function PermissionsManagement() {
       const response = await api.get('/users/', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      setUsers(response.data || [])
+      // Ensure response.data is an array
+      const userData = Array.isArray(response.data) ? response.data : []
+      setUsers(userData.length > 0 ? userData : getMockUsers())
     } catch (err) {
       console.error('Error loading users:', err)
-      // Mock data for demo
-      setUsers([
-        { id: 1, vorname: 'Max', nachname: 'Admin', email: 'admin@test.de', role: 'admin' },
-        { id: 2, vorname: 'Anna', nachname: 'Mitarbeiter', email: 'ma@test.de', role: 'ma' },
-        { id: 3, vorname: 'Peter', nachname: 'Eltern', email: 'eltern@test.de', role: 'eltern' }
-      ])
+      // Use mock data on error
+      setUsers(getMockUsers())
     }
   }
+
+  const getMockUsers = () => [
+    { id: 1, vorname: 'Max', nachname: 'Admin', email: 'admin@test.de', role: 'admin' },
+    { id: 2, vorname: 'Anna', nachname: 'Mitarbeiter', email: 'ma@test.de', role: 'ma' },
+    { id: 3, vorname: 'Peter', nachname: 'Eltern', email: 'eltern@test.de', role: 'eltern' }
+  ]
 
   const loadUserPermissions = async (userId) => {
     try {
@@ -170,23 +174,27 @@ export default function PermissionsManagement() {
         <div className="card">
           <h3 className="text-lg font-bold text-navy mb-4">👤 Benutzer</h3>
           <div className="space-y-2 max-h-96 overflow-y-auto">
-            {users.map(user => (
-              <button
-                key={user.id}
-                onClick={() => handleSelectUser(user)}
-                className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                  selectedUser?.id === user.id
-                    ? 'border-gold bg-gold/5'
-                    : 'border-slate-200 hover:border-gold/50'
-                }`}
-              >
-                <p className="font-semibold text-navy text-sm">{user.vorname} {user.nachname}</p>
-                <p className="text-xs text-slate-600">{user.email}</p>
-                <span className={`inline-block mt-2 px-2 py-1 rounded text-xs font-semibold ${getRoleColor(user.role)}`}>
-                  {getRoleLabel(user.role)}
-                </span>
-              </button>
-            ))}
+            {Array.isArray(users) && users.length > 0 ? (
+              users.map(user => (
+                <button
+                  key={user.id}
+                  onClick={() => handleSelectUser(user)}
+                  className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                    selectedUser?.id === user.id
+                      ? 'border-gold bg-gold/5'
+                      : 'border-slate-200 hover:border-gold/50'
+                  }`}
+                >
+                  <p className="font-semibold text-navy text-sm">{user.vorname} {user.nachname}</p>
+                  <p className="text-xs text-slate-600">{user.email}</p>
+                  <span className={`inline-block mt-2 px-2 py-1 rounded text-xs font-semibold ${getRoleColor(user.role)}`}>
+                    {getRoleLabel(user.role)}
+                  </span>
+                </button>
+              ))
+            ) : (
+              <p className="text-center text-slate-600 py-4">Keine Benutzer gefunden</p>
+            )}
           </div>
         </div>
 
