@@ -22,7 +22,9 @@ export default function AdminLayout({ children, onLogout }) {
     { id: 'tents', label: '⛺ Zeltplätze', path: '/admin/tents' },
     { id: 'activities', label: '🎯 Aktivitäten', path: '/admin/activities' },
     { id: 'photos', label: '📸 Fotos', path: '/admin/photos' },
-    { id: 'pocket-money', label: '💰 Taschengeld', path: '/admin/pocket-money' },
+    { id: 'finances', label: '💰 Finanzen', path: '/admin/finances' },
+    { id: 'reports', label: '📊 Berichte', path: '/admin/reports' },
+    { id: 'administration', label: '⚙️ Admin', path: '/admin/administration' },
     { id: 'permissions', label: '🔐 Berechtigungen', path: '/admin/permissions' },
   ]
 

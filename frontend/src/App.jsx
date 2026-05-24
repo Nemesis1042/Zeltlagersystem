@@ -8,6 +8,9 @@ import ProtectedRoute from './components/ProtectedRoute'
 // Admin Pages
 import AdminOverview from './pages/AdminOverview'
 import AdminCamps from './pages/AdminCamps'
+import AdminFinances from './pages/AdminFinances'
+import AdminReports from './pages/AdminReports'
+import AdminAdministration from './pages/AdminAdministration'
 
 // MA/Staff Pages
 import MADashboard from './pages/MADashboard'
@@ -49,6 +52,30 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <AdminCamps onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/finances"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminFinances onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/reports"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminReports onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/administration"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminAdministration onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
