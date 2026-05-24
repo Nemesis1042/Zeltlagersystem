@@ -1,0 +1,28 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Preserve the original request path in an environment variable
+  RewriteCond %{REQUEST_URI} ^/api/
+  RewriteRule ^api/(.*)$ backend-php/public/index.php [QSA,L,E=PATH_INFO:/api/$1]
+
+  # Wenn die Datei/Ordner nicht existiert
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+
+  # Alles zu index.html leiten (für React Router)
+  RewriteRule ^(.*)$ index.html [QSA,L]
+</IfModule>
+
+# index.html als Standard-Datei
+DirectoryIndex index.html
+
+# Cache-Control für statische Assets
+<FilesMatch "\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+  Header set Cache-Control "max-age=31536000, public"
+</FilesMatch>
+
+# Keine Cache für HTML
+<FilesMatch "\.(html)$">
+  Header set Cache-Control "max-age=0, public, must-revalidate"
+</FilesMatch>
