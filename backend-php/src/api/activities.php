@@ -7,8 +7,19 @@ $participantRepo = new ParticipantRepository();
 // GET /activities/?camp_id=1
 $router->get('/activities/', function() use ($activityRepo) {
     $camp_id = $_GET['camp_id'] ?? 1;
-    $activities = $activityRepo->getByCampId($camp_id);
-    return json_encode($activities);
+
+    try {
+        $activities = $activityRepo->getByCampId($camp_id);
+
+        if ($activities === null || !is_array($activities)) {
+            $activities = [];
+        }
+
+        return json_encode($activities);
+    } catch (Exception $e) {
+        http_response_code(500);
+        return json_encode(['error' => $e->getMessage()]);
+    }
 });
 
 // GET /activities/{id}

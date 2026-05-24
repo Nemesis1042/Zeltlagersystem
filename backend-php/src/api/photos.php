@@ -8,13 +8,23 @@ $router->get('/photos/', function() use ($photoRepo) {
     $camp_id = $_GET['camp_id'] ?? 1;
     $released_only = $_GET['released'] === 'true' ? true : false;
 
-    if ($released_only) {
-        $photos = $photoRepo->getReleasedPhotos($camp_id);
-    } else {
-        $photos = $photoRepo->getByCampId($camp_id);
-    }
+    try {
+        if ($released_only) {
+            $photos = $photoRepo->getReleasedPhotos($camp_id);
+        } else {
+            $photos = $photoRepo->getByCampId($camp_id);
+        }
 
-    return json_encode($photos);
+        // Ensure we always return an array
+        if ($photos === null || !is_array($photos)) {
+            $photos = [];
+        }
+
+        return json_encode($photos);
+    } catch (Exception $e) {
+        http_response_code(500);
+        return json_encode(['error' => $e->getMessage()]);
+    }
 });
 
 // GET /photos/{id}
