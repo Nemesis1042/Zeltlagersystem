@@ -8,9 +8,15 @@ import ProtectedRoute from './components/ProtectedRoute'
 // Admin Pages
 import AdminOverview from './pages/AdminOverview'
 import AdminCamps from './pages/AdminCamps'
+import AdminParticipants from './pages/AdminParticipants'
+import AdminCheckIn from './pages/AdminCheckIn'
+import AdminTents from './pages/AdminTents'
+import AdminActivities from './pages/AdminActivities'
+import AdminPhotos from './pages/AdminPhotos'
 import AdminFinances from './pages/AdminFinances'
 import AdminReports from './pages/AdminReports'
 import AdminAdministration from './pages/AdminAdministration'
+import AdminPermissions from './pages/AdminPermissions'
 
 // MA/Staff Pages
 import MADashboard from './pages/MADashboard'
@@ -76,6 +82,54 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <AdminAdministration onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/participants"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminParticipants onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/check-in"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminCheckIn onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/tents"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminTents onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/activities"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminActivities onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/photos"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminPhotos onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/permissions"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <AdminPermissions onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
