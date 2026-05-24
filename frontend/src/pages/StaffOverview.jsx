@@ -21,7 +21,7 @@ export default function StaffOverview({ onLogout }) {
       const token = localStorage.getItem('token')
 
       // Load check-in status
-      const statusResponse = await api.get('/check-in/status/1', {
+      const statusResponse = await api.get(`/check-in/status?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setStats(statusResponse.data)

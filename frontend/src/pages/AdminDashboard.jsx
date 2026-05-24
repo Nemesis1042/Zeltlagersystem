@@ -43,7 +43,7 @@ export default function AdminDashboard({ onLogout }) {
 
       // Load check-in status
       try {
-        const checkResponse = await api.get('/check-in/status/1', {
+        const checkResponse = await api.get(`/check-in/status?camp_id=${campId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         setCheckInStatus(checkResponse.data)

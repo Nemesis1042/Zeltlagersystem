@@ -6,6 +6,54 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 try {
     $pdo = $db->getConnection();
 
+    // GET /api/check-in/status - get camp-level check-in statistics
+    if ($path === '/api/check-in/status' && $method === 'GET') {
+        $camp_id = (int)($_GET['camp_id'] ?? 1);
+
+        $stmt = $pdo->prepare("
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN checked_in = 1 THEN 1 ELSE 0 END) as checked_in,
+                SUM(CASE WHEN checked_in = 0 THEN 1 ELSE 0 END) as pending
+            FROM participants
+            WHERE camp_id = ?
+        ");
+        $stmt->execute([$camp_id]);
+        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $percentage = $stats['total'] > 0 ? round(($stats['checked_in'] / $stats['total']) * 100) : 0;
+
+        $stmt = $pdo->prepare("
+            SELECT p.id, p.vorname, p.nachname, ci.checked_in, ci.checked_in_at
+            FROM participants p
+            LEFT JOIN check_ins ci ON p.id = ci.participant_id AND ci.camp_id = ?
+            WHERE p.camp_id = ? AND (ci.checked_in = 0 OR ci.checked_in IS NULL)
+            ORDER BY p.nachname, p.vorname
+        ");
+        $stmt->execute([$camp_id, $camp_id]);
+        $pending = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmt = $pdo->prepare("
+            SELECT p.id, p.vorname, p.nachname, ci.checked_in_at
+            FROM participants p
+            LEFT JOIN check_ins ci ON p.id = ci.participant_id AND ci.camp_id = ?
+            WHERE p.camp_id = ? AND ci.checked_in = 1
+            ORDER BY p.nachname, p.vorname
+        ");
+        $stmt->execute([$camp_id, $camp_id]);
+        $checked_in = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'total' => (int)$stats['total'],
+            'checked_in' => (int)$stats['checked_in'],
+            'pending' => (int)$stats['pending'],
+            'percentage' => $percentage,
+            'pending_participants' => $pending ?: [],
+            'checked_in_participants' => $checked_in ?: []
+        ]);
+        exit;
+    }
+
     // GET /api/check-in/status/{id}
     if (preg_match('/^\/api\/check-in\/status\/(\d+)/', $path, $m) && $method === 'GET') {
         $participant_id = (int)$m[1];

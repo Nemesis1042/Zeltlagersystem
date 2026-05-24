@@ -24,7 +24,7 @@ export default function AdminOverview({ onLogout }) {
       })
       setParticipants(Array.isArray(partResponse.data) ? partResponse.data : [])
 
-      const checkResponse = await api.get('/check-in/status/1', {
+      const checkResponse = await api.get(`/check-in/status?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setCheckInStatus(checkResponse.data)

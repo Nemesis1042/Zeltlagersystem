@@ -1,8 +1,10 @@
+import { useCamp } from '../context/CampContext'
 import { useState, useEffect } from 'react'
 import api from '../utils/api'
 import StaffLayout from '../components/StaffLayout'
 
 export default function StaffCheckIn({ onLogout }) {
+  const { campId } = useCamp()
   const [checkInStatus, setCheckInStatus] = useState(null)
   const [pendingParticipants, setPendingParticipants] = useState([])
   const [loading, setLoading] = useState(true)
@@ -17,7 +19,7 @@ export default function StaffCheckIn({ onLogout }) {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await api.get('/check-in/status/1', {
+      const response = await api.get(`/check-in/status?camp_id=${campId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setCheckInStatus(response.data)
@@ -34,7 +36,10 @@ export default function StaffCheckIn({ onLogout }) {
   const handleCheckIn = async (participantId, participantName) => {
     try {
       const token = localStorage.getItem('token')
-      await api.post(`/check-in/${participantId}`, {}, {
+      await api.post('/check-in/', {
+        participant_id: participantId,
+        camp_id: campId
+      }, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       setSuccess(`✓ ${participantName} eingecheckt!`)
