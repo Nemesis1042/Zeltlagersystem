@@ -68,3 +68,81 @@ INSERT IGNORE INTO products (id, name, price, category) VALUES
 (3, '🍦 Eis', 2.50, 'Essen'),
 (4, '🍪 Keks', 1.50, 'Essen'),
 (5, '🎫 Lagerfeuer', 5.00, 'Event');
+
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  vorname VARCHAR(100) NOT NULL,
+  nachname VARCHAR(100) NOT NULL,
+  role ENUM('admin', 'ma', 'eltern') DEFAULT 'eltern',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX(email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Insert admin user
+INSERT IGNORE INTO users (email, password, vorname, nachname, role) VALUES
+('admin@lagerbank.info', '$2y$10$YourHashedPasswordHere', 'Admin', 'User', 'admin');
+
+-- Participants table
+CREATE TABLE IF NOT EXISTS participants (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  camp_id INT NOT NULL,
+  vorname VARCHAR(100) NOT NULL,
+  nachname VARCHAR(100) NOT NULL,
+  alter INT,
+  geschlecht VARCHAR(20),
+  kontakt_name VARCHAR(100),
+  kontakt_email VARCHAR(255),
+  kontakt_tel VARCHAR(20),
+  guthaben DECIMAL(10, 2) DEFAULT 0,
+  checked_in TINYINT DEFAULT 0,
+  checked_in_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(camp_id) REFERENCES camps(id),
+  INDEX(camp_id),
+  INDEX(checked_in)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Check-ins table
+CREATE TABLE IF NOT EXISTS check_ins (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  participant_id INT NOT NULL,
+  camp_id INT NOT NULL,
+  checked_in TINYINT DEFAULT 0,
+  checked_in_at TIMESTAMP NULL,
+  checked_in_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(participant_id) REFERENCES participants(id),
+  FOREIGN KEY(camp_id) REFERENCES camps(id),
+  UNIQUE(participant_id, camp_id),
+  INDEX(camp_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Activities table
+CREATE TABLE IF NOT EXISTS activities (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  camp_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  beschreibung TEXT,
+  datum DATE,
+  uhrzeit TIME,
+  ort VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(camp_id) REFERENCES camps(id),
+  INDEX(camp_id),
+  INDEX(datum)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tents table
+CREATE TABLE IF NOT EXISTS tents (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  camp_id INT NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  kapazitaet INT,
+  belegt INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(camp_id) REFERENCES camps(id),
+  INDEX(camp_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

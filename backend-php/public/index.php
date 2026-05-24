@@ -18,6 +18,7 @@ $routes = [
     'pocket-money' => __DIR__ . '/../src/api/pocket-money.php',
     'users' => __DIR__ . '/../src/api/users.php',
     'check-in' => __DIR__ . '/../src/api/check-in.php',
+    'finances' => __DIR__ . '/../src/api/finances.php',
     'auth' => __DIR__ . '/../src/api/auth.php',
 ];
 
